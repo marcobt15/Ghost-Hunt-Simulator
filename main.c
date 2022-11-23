@@ -5,6 +5,9 @@ int main(int argc, char *argv[])
     // Initialize a random seed for the random number generators
     srand(time(NULL));
     // kfewijfs[ofjs[e9fes]]
+    //lskdjdufsjlsdkfsljkfhslkdjflskjdflksjflksjldf
+    //slkjfslkjflskjdlkfjslkfdjsljfdlf
+    //slkfjslkjflskjflskjfsoiuf
     // You may change this code; this is for demonstration purposes
     BuildingType building;
     initBuilding(&building);
