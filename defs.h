@@ -48,7 +48,7 @@ typedef struct{
 	EvidenceClassType evidenceType;
 	int value;
 } EvidenceType;
-
+ 
 typedef struct{
 	EvidenceType* evidence;
 	struct EvidenceNode* next;
