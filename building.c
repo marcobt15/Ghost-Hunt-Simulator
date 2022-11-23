@@ -1,5 +1,5 @@
 #include "defs.h"
-
+ 
 //will have more
 void initBuilding(BuildingType* building){
 	initRoomList(&building->rooms);
