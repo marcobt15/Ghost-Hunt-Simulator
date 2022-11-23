@@ -91,16 +91,19 @@ float randFloat(float, float);  // Generates a pseudorandom float between the pa
 
 //Building fucntions
 void populateRooms(BuildingType*);   // Populates the building with sample data for rooms
+void cleanupBuilding(BuildingType*);
 void initBuilding(BuildingType*);
 
 //Room functions
-void initRoom(RoomType*, char*);
+void initRoom(RoomType**, char*);
 void initRoomList(RoomListType*);
 void appendRoom(RoomListType*, RoomNodeType*);
 void connectRooms(RoomType*, RoomType*);
+void cleanupRoomData(RoomListType*);
+void cleanupRoomList(RoomListType*);
 
 //Evidence functions
-void initEvidence();
+//void initEvidence();
 void initEvidenceList(EvidenceListType*);
 
 //Ghost functions
@@ -110,3 +113,4 @@ void initGhost(GhostType*, GhostClassType, RoomType*);
 void initHunter(HunterType**, RoomNodeType*, EvidenceClassType, char*);
 void initHunterArray(HunterArrayType*);
 void addHunter(HunterArrayType*, HunterType*);
+void cleanupHunterArray(HunterArrayType*);

@@ -10,7 +10,7 @@ void initBuilding(BuildingType* building){
 void cleanupBuilding(BuildingType* building){
 	cleanupRoomData(&building->rooms);
 	cleanupRoomList(&building->rooms);
-	cleanupHunterArrays(&building->hunters);
+	cleanupHunterArray(&building->hunters);
 }
 
 /*
@@ -33,31 +33,31 @@ void populateRooms(BuildingType* building) {
     // First, create each room. Perhaps you want to include more data 
     // in the init parameters?
     RoomType* van = calloc(1, sizeof(RoomType));
-    initRoom(van, "Van");
+    initRoom(&van, "Van");
     RoomType* hallway = calloc(1, sizeof(RoomType));
-    initRoom(hallway, "Hallway");
+    initRoom(&hallway, "Hallway");
     RoomType* master_bedroom = calloc(1, sizeof(RoomType));
-    initRoom(master_bedroom, "Master Bedroom");
+    initRoom(&master_bedroom, "Master Bedroom");
     RoomType* boys_bedroom = calloc(1, sizeof(RoomType));
-    initRoom(boys_bedroom, "Boy's Bedroom");
+    initRoom(&boys_bedroom, "Boy's Bedroom");
     RoomType* bathroom = calloc(1, sizeof(RoomType));
-    initRoom(bathroom, "Bathroom");
+    initRoom(&bathroom, "Bathroom");
     RoomType* basement = calloc(1, sizeof(RoomType));
-    initRoom(basement, "Basement");
+    initRoom(&basement, "Basement");
     RoomType* basement_hallway = calloc(1, sizeof(RoomType));
-    initRoom(basement_hallway, "Basement Hallway");
+    initRoom(&basement_hallway, "Basement Hallway");
     RoomType* right_storage_room = calloc(1, sizeof(RoomType));
-    initRoom(right_storage_room, "Right Storage Room");
+    initRoom(&right_storage_room, "Right Storage Room");
     RoomType* left_storage_room = calloc(1, sizeof(RoomType));
-    initRoom(left_storage_room, "Left Storage Room");
+    initRoom(&left_storage_room, "Left Storage Room");
     RoomType* kitchen = calloc(1, sizeof(RoomType));
-    initRoom(kitchen, "Kitchen");
+    initRoom(&kitchen, "Kitchen");
     RoomType* living_room = calloc(1, sizeof(RoomType));
-    initRoom(living_room, "Living Room");
+    initRoom(&living_room, "Living Room");
     RoomType* garage = calloc(1, sizeof(RoomType));
-    initRoom(garage, "Garage");
+    initRoom(&garage, "Garage");
     RoomType* utility_room = calloc(1, sizeof(RoomType));
-    initRoom(utility_room, "Utility Room");
+    initRoom(&utility_room, "Utility Room");
 
     // Now create a linked list of rooms using RoomNodeType in the Building
     RoomNodeType* van_node = calloc(1, sizeof(RoomNodeType));

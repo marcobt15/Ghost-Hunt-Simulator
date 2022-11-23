@@ -1,19 +1,19 @@
 #include "defs.h"
 
-void initRoom(RoomType* room, char* name){
-	strcpy(room->name, name);
+void initRoom(RoomType** room, char* name){
+	strcpy((*room)->name, name);
 	
 	RoomListType* roomList = malloc(sizeof(RoomListType));
-	room->rooms = roomList;
-	initRoomList(room->rooms);
+	(*room)->rooms = roomList;
+	initRoomList((*room)->rooms);
 	
 	EvidenceListType* evidenceList = malloc(sizeof(EvidenceListType));
-	room->evidence = evidenceList;
-	initEvidenceList(room->evidence);
+	(*room)->evidence = evidenceList;
+	initEvidenceList((*room)->evidence);
 	
-	initHunterArray(&room->hunters);
+	initHunterArray(&(*room)->hunters);
 	
-	room->ghost = NULL;
+	(*room)->ghost = NULL;
 }
 
 void initRoomList(RoomListType* roomList){
@@ -35,11 +35,11 @@ void appendRoom (RoomListType* list, RoomNodeType* room){
 }
 
 void connectRooms(RoomType* room1, RoomType* room2){
-	RoomNodeType* room1Node = calloc(1, sizeof(RoomNodeType));
+	RoomNodeType* room1Node;// = calloc(1, sizeof(RoomNodeType));
     	room1Node->room = room1;
 	appendRoom(room2->rooms, room1Node);
 	
-	RoomNodeType* room2Node = calloc(1, sizeof(RoomNodeType));
+	RoomNodeType* room2Node; //= calloc(1, sizeof(RoomNodeType));
     	room2Node->room = room2;
 	appendRoom(room1->rooms, room2Node);
 }
@@ -49,6 +49,7 @@ void cleanupRoomData(RoomListType* list){
 	if (curr == NULL) return;
 	
 	while(1){
+		free(curr->room->rooms);
 		free(curr->room);
 		if (curr->next == NULL) break;
 		curr = curr->next;

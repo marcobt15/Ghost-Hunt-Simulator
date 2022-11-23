@@ -4,10 +4,7 @@ int main(int argc, char *argv[])
 {
     // Initialize a random seed for the random number generators
     srand(time(NULL));
-    // kfewijfs[ofjs[e9fes]]
-    //lskdjdufsjlsdkfsljkfhslkdjflskjdflksjflksjldf
-    //slkjfslkjflskjdlkfjslkfdjsljfdlf
-    //slkfjslkjflskjflskjfsoiuf
+
     // You may change this code; this is for demonstration purposes
     BuildingType building;
     initBuilding(&building);
@@ -31,12 +28,6 @@ int main(int argc, char *argv[])
 	addHunter(&building.hunters, newHunter);
     }
 
-    for (int i = 0; i < MAX_HUNTERS; i++){
-    	printf("%s", building.hunters.hunters[i]->name);
-    }
-
-
-
     //Initializing the ghost
     GhostType ghost;
 
@@ -55,17 +46,7 @@ int main(int argc, char *argv[])
     currRoom->room->ghost = &ghost; //room has the ghost
 
     building.ghost = &ghost; //building has the ghost
-<<<<<<< HEAD
-   
-   // ioSHQIUSBUNSQ
-   
-   
-=======
 
-
-
-
->>>>>>> 949b59d4d2dc996806b248cea0608aa8ecb1b2a2
     cleanupBuilding(&building);
     return 0;
 }
