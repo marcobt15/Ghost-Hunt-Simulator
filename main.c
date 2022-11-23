@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     
     building.ghost = &ghost; //building has the ghost
    
-   
+   // ioSHQIUSBUNSQ
    
    
     cleanupBuilding(&building);
