@@ -36,11 +36,14 @@ int main(int argc, char *argv[])
     GhostClassType ghostClass = ghostClassNumber;
 
     //getting random room
+    /*acutal code
     int roomNumber = randInt(1, 12); //13 is the amount of rooms given so move 12 times to get there
     RoomNodeType* currRoom = building.rooms.head;
     for (int i = 0; i < roomNumber; i++){
     	currRoom = currRoom->next;
     }
+    */
+    RoomNodeType* currRoom = building.rooms.head; //for testing
     ghost.room = currRoom->room; //ghost has its room
 
     currRoom->room->ghost = &ghost; //room has the ghost

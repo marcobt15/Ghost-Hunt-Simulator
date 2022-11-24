@@ -58,6 +58,8 @@ void populateRooms(BuildingType* building) {
     initRoom(&garage, "Garage");
     RoomType* utility_room = calloc(1, sizeof(RoomType));
     initRoom(&utility_room, "Utility Room");
+    
+    
 
     // Now create a linked list of rooms using RoomNodeType in the Building
     RoomNodeType* van_node = calloc(1, sizeof(RoomNodeType));
