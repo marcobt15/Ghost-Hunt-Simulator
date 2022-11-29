@@ -2,17 +2,17 @@
 
 void initRoom(RoomType* room, char* name){
 	strcpy(room->name, name);
-	
+
 	RoomListType* roomList = malloc(sizeof(RoomListType));
 	room->rooms = roomList;
 	initRoomList(room->rooms);
-	
+
 	EvidenceListType* evidenceList = malloc(sizeof(EvidenceListType));
-	room->evidence = evidenceList;
+	room->evidence = evidenceList;87
 	initEvidenceList(room->evidence);
-	
+
 	initHunterArray(&room->hunters);
-	
+
 	room->ghost = NULL;
 }
 
@@ -28,7 +28,7 @@ void appendRoom (RoomListType* list, RoomNodeType* room){
 		list->tail = room;
 		return;
 	}
-	
+
 	//Not an empty list
 	list->tail->next = room;
 	list->tail = room;
@@ -38,7 +38,7 @@ void connectRooms(RoomType* room1, RoomType* room2){
 	RoomNodeType* room1Node = calloc(1, sizeof(RoomNodeType));
     	room1Node->room = room1;
 	appendRoom(room2->rooms, room1Node);
-	
+
 	RoomNodeType* room2Node = calloc(1, sizeof(RoomNodeType));
     	room2Node->room = room2;
 	appendRoom(room1->rooms, room2Node);
@@ -47,7 +47,7 @@ void connectRooms(RoomType* room1, RoomType* room2){
 void cleanupRoomData(RoomListType* list){
 	RoomNodeType* curr = list->head;
 	if (curr == NULL) return;
-	
+
 	while(1){
 		free(curr->room);
 		if (curr->next == NULL) break;
@@ -58,7 +58,7 @@ void cleanupRoomData(RoomListType* list){
 void cleanupRoomList(RoomListType* list){
 	RoomNodeType* curr = list->head;
 	RoomNodeType* next = NULL;
-	
+
 	while(1){
 		if (curr == NULL) break;
 		next = curr->next;
