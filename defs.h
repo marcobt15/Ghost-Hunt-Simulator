@@ -35,6 +35,7 @@ typedef struct{
 	struct EvidenceList* evidence;
 	char name[MAX_STR];
 	int fearTimer;
+	int boredomTimer;
 } HunterType;
 
 typedef struct{
@@ -46,6 +47,7 @@ typedef struct{
 typedef struct{
 	EvidenceClassType evidenceType;
 	float value;
+	int ghostEvidence;
 } EvidenceType;
  
 typedef struct EvidenceNode{
@@ -65,6 +67,7 @@ typedef struct roomType{
 	EvidenceListType* evidence;
 	HunterArrayType hunters;
 	GhostType* ghost;
+	sem_t* mutex; //so only 1 thread can affect each room at a time
 } RoomType;
 
 typedef struct RoomNode{
@@ -104,7 +107,7 @@ void cleanupRoomList(RoomListType*);
 
 //Evidence functions
 void initEvidenceList(EvidenceListType*);
-void initEvidenceType(EvidenceType*, EvidenceClassType, float);
+void initEvidenceType(EvidenceType*, EvidenceClassType, float, int);
 void addEvidence(EvidenceListType*, EvidenceNodeType*);
 void cleanupEvidenceData(EvidenceListType*);
 void cleanupEvidenceList(EvidenceListType*);

@@ -1,11 +1,12 @@
 #include "defs.h"
 
 void* ghostThreadFunction(void* inputGhost){
-	//ADD A SEMAPHORE
 	GhostType* ghost = (GhostType*) inputGhost;
 	
-	while (ghost->boredomTimer > 0){
 	
+	while (ghost->boredomTimer > 0){
+		sem_wait(ghost->room->mutex);
+		
 		//THIS PART CANNOT BE TESTED YET
 		//If there is a hunter in the room
 		if (ghost->room->hunters.size != 0){
@@ -44,7 +45,9 @@ void* ghostThreadFunction(void* inputGhost){
 			//if choice is 3 do nothing
 		}
 		
+		sem_post(ghost->room->mutex);
 	}
+	
 	
 	return (0);
 }
@@ -99,7 +102,7 @@ void leaveEvidence(GhostType** ghost){
 	}
 	
 	EvidenceType* newEvidence = calloc(1, sizeof(EvidenceType));
-	initEvidenceType(newEvidence, evidenceChoice, evidenceValue);
+	initEvidenceType(newEvidence, evidenceChoice, evidenceValue, 1);
 	
 	EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
     	newEvidenceNode->evidence = newEvidence;

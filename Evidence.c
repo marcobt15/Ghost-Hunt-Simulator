@@ -5,9 +5,10 @@ void initEvidenceList(EvidenceListType* evidenceList){
 	evidenceList->tail = NULL;
 }
 
-void initEvidenceType(EvidenceType* evidence, EvidenceClassType evidenceType, float value){
+void initEvidenceType(EvidenceType* evidence, EvidenceClassType evidenceType, float value, int ghostEvidence){
 	evidence->evidenceType = evidenceType;
 	evidence->value = value;
+	evidence->ghostEvidence = ghostEvidence;
 }
 
 

@@ -14,6 +14,10 @@ void initRoom(RoomType** room, char* name){
 	initHunterArray(&(*room)->hunters);
 	
 	(*room)->ghost = NULL;
+	
+	sem_t mutex;
+	(*room)->mutex = &mutex;
+	sem_init(&mutex, 0, 1);
 }
 
 void initRoomList(RoomListType* roomList){

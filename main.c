@@ -58,9 +58,17 @@ int main(int argc, char *argv[])
     
     //hunter threads
     pthread_t hunterThread1, hunterThread2, hunterThread3, hunterThread4;
+    pthread_create(&hunterThread1, NULL, hunterThreadFunction, building.hunters.hunters[0]);
+    pthread_create(&hunterThread2, NULL, hunterThreadFunction, building.hunters.hunters[1]);
+    pthread_create(&hunterThread3, NULL, hunterThreadFunction, building.hunters.hunters[2]);
+    pthread_create(&hunterThread4, NULL, hunterThreadFunction, building.hunters.hunters[3]);
     
     //joining threads
     pthread_join(ghostThread, NULL);
+    pthread_join(hunterThread1, NULL);
+    pthread_join(hunterThread2, NULL);
+    pthread_join(hunterThread3, NULL);
+    pthread_join(hunterThread4, NULL);	
     
     /*
     //testing section
