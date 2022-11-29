@@ -19,9 +19,11 @@ void initRoom(RoomType** room, char* name){
 void initRoomList(RoomListType* roomList){
 	roomList->head = NULL;
 	roomList->tail = NULL;
+	roomList->totalRooms = 0;
 }
 
-void appendRoom (RoomListType* list, RoomNodeType* room){
+void appendRoom(RoomListType* list, RoomNodeType* room){
+	list->totalRooms++;
 	//If an empty list, the room will be the head and tail
 	if (list->head == NULL){
 		list->head = room;
@@ -51,6 +53,8 @@ void cleanupRoomData(RoomListType* list){
 	while(1){
 		cleanupRoomList(curr->room->rooms);
 		free(curr->room->rooms);
+		cleanupEvidenceData(curr->room->evidence);
+		cleanupEvidenceList(curr->room->evidence);
 		free(curr->room->evidence);
 		free(curr->room);
 		if (curr->next == NULL) break;

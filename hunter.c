@@ -23,6 +23,8 @@ void addHunter(HunterArrayType* hunterList, HunterType* hunter){
 
 void cleanupHunterArray(HunterArrayType* hunterArray){
 	for (int i = 0; i < hunterArray->size; i++){
+		cleanupEvidenceData(hunterArray->hunters[i]->evidence);
+		cleanupEvidenceList(hunterArray->hunters[i]->evidence);
 		free(hunterArray->hunters[i]->evidence);
 		free(hunterArray->hunters[i]);
 	}

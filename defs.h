@@ -43,13 +43,12 @@ typedef struct{
 } HunterArrayType;
 
 //evidence stuff
-//maybe add more to this not sure yet
 typedef struct{
 	EvidenceClassType evidenceType;
-	int value;
+	float value;
 } EvidenceType;
  
-typedef struct{
+typedef struct EvidenceNode{
 	EvidenceType* evidence;
 	struct EvidenceNode* next;
 } EvidenceNodeType;
@@ -76,6 +75,7 @@ typedef struct RoomNode{
 typedef struct RoomList{
 	RoomNodeType* head;
 	RoomNodeType* tail; //for insertion
+	int totalRooms; //for moving in adjacent rooms
 } RoomListType;
 
 //building stuff
@@ -103,10 +103,16 @@ void cleanupRoomData(RoomListType*);
 void cleanupRoomList(RoomListType*);
 
 //Evidence functions
-//void initEvidence();
 void initEvidenceList(EvidenceListType*);
+void initEvidenceType(EvidenceType*, EvidenceClassType, float);
+void addEvidence(EvidenceListType*, EvidenceNodeType*);
+void cleanupEvidenceData(EvidenceListType*);
+void cleanupEvidenceList(EvidenceListType*);
 
 //Ghost functions
+void* ghostThreadFunction(void*);
+void leaveEvidence(GhostType**);
+void moveRoom(GhostType**);
 void initGhost(GhostType*, GhostClassType, RoomType*);
 
 //Hunter functions

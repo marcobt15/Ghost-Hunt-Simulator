@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 	fgets(name, MAX_STR, stdin);
 
 	HunterType* newHunter = malloc(sizeof(HunterType));
-	EvidenceClassType evidence = i+1;
+	EvidenceClassType evidence = i;
 
 	//testing
 	//RoomNodeType* head = building.rooms.head->room->rooms->head;
@@ -31,24 +31,56 @@ int main(int argc, char *argv[])
     //Initializing the ghost
     GhostType ghost;
 
-    //getting ghosttype
-    int ghostClassNumber = randInt(1, 4);
-    GhostClassType ghostClass = ghostClassNumber;
+    
+    //getting ghost type
+    int ghostClassNumber = randInt(0, 4);
+    printf("The ghost class is number: %d\n", ghostClassNumber);
 
     //getting random room
-    /*acutal code
     int roomNumber = randInt(1, 12); //13 is the amount of rooms given so move 12 times to get there
     RoomNodeType* currRoom = building.rooms.head;
     for (int i = 0; i < roomNumber; i++){
     	currRoom = currRoom->next;
     }
-    */
-    RoomNodeType* currRoom = building.rooms.head; //for testing
-    ghost.room = currRoom->room; //ghost has its room
+    
+    //inialize the ghost with the random ghost class and room
+    initGhost(&ghost, ghostClassNumber, currRoom->room);
 
     currRoom->room->ghost = &ghost; //room has the ghost
 
     building.ghost = &ghost; //building has the ghost
+
+    //THREADING
+    
+    //ghost thread
+    pthread_t ghostThread;
+    pthread_create(&ghostThread, NULL, ghostThreadFunction, building.ghost);
+    
+    //hunter threads
+    pthread_t hunterThread1, hunterThread2, hunterThread3, hunterThread4;
+    
+    //joining threads
+    pthread_join(ghostThread, NULL);
+    
+    /*
+    //testing section
+    //prints all rooms with all their evidence
+    RoomNodeType* curr = building.rooms.head;
+    while(curr != NULL){
+    	if (curr->room->evidence->head == NULL) printf("no evidence in %s \n", curr->room->name);
+    	else{
+    		printf("This is room %s with this evidence:\n", curr->room->name);
+    		EvidenceNodeType* currE = curr->room->evidence->head;
+    		while(currE != NULL){
+			printf("\tEvidence type: %d with the value: %f\n", currE->evidence->evidenceType, currE->evidence->value);
+			currE = currE->next;
+		}
+    	}
+    	curr = curr->next;
+    }
+    
+    //end of testing section
+    */
 
     cleanupBuilding(&building);
     return 0;
