@@ -5,11 +5,12 @@ void* ghostThreadFunction(void* inputGhost){
 	
 	
 	while (ghost->boredomTimer > 0){
-		sem_wait(ghost->room->mutex);
+		RoomType* currRoom = ghost->room;
+		sem_wait(&(currRoom->mutex));
 		
-		//THIS PART CANNOT BE TESTED YET
 		//If there is a hunter in the room
 		if (ghost->room->hunters.size != 0){
+			
 			//reset the boredom timer
 			ghost->boredomTimer = BOREDOM_MAX;
 			
@@ -33,7 +34,6 @@ void* ghostThreadFunction(void* inputGhost){
 			
 			//move room choice
 			if (choice == 1){
-				//tested and works
 				moveRoom(&ghost);
 			}
 			
@@ -45,7 +45,7 @@ void* ghostThreadFunction(void* inputGhost){
 			//if choice is 3 do nothing
 		}
 		
-		sem_post(ghost->room->mutex);
+		sem_post(&(currRoom->mutex));
 	}
 	
 	
@@ -113,8 +113,6 @@ void leaveEvidence(GhostType** ghost){
 void moveRoom(GhostType** ghost){
 	
 	RoomType* currRoom = (*ghost)->room;
-	currRoom->ghost = NULL;
-	
 	
 	int adjacentRoomNum = currRoom->rooms->totalRooms;
 	RoomNodeType* currRoomChoice;
@@ -133,9 +131,15 @@ void moveRoom(GhostType** ghost){
 		}
 	}
 	
-	(*ghost)->room = currRoomChoice->room;
+	if (sem_trywait(&(currRoomChoice->room->mutex)) == 0) {
+		(*ghost)->room = currRoomChoice->room;
+		currRoomChoice->room->ghost = (*ghost);
+		currRoom->ghost = NULL;
+		
+		sem_post(&(currRoomChoice->room->mutex));
+	}
 	
-	currRoomChoice->room->ghost = (*ghost);
+	
 }
 
 void initGhost(GhostType* ghost, GhostClassType ghostClass, RoomType* room){

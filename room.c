@@ -16,7 +16,7 @@ void initRoom(RoomType** room, char* name){
 	(*room)->ghost = NULL;
 	
 	sem_t mutex;
-	(*room)->mutex = &mutex;
+	(*room)->mutex = mutex;
 	sem_init(&mutex, 0, 1);
 }
 

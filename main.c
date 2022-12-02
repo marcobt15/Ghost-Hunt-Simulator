@@ -51,26 +51,29 @@ int main(int argc, char *argv[])
     building.ghost = &ghost; //building has the ghost
 
     //THREADING
-    
+   
     //ghost thread
     pthread_t ghostThread;
     pthread_create(&ghostThread, NULL, ghostThreadFunction, building.ghost);
     
     //hunter threads
     pthread_t hunterThread1, hunterThread2, hunterThread3, hunterThread4;
-    pthread_create(&hunterThread1, NULL, hunterThreadFunction, building.hunters.hunters[0]);
-    pthread_create(&hunterThread2, NULL, hunterThreadFunction, building.hunters.hunters[1]);
-    pthread_create(&hunterThread3, NULL, hunterThreadFunction, building.hunters.hunters[2]);
-    pthread_create(&hunterThread4, NULL, hunterThreadFunction, building.hunters.hunters[3]);
+    //pthread_create(&hunterThread1, NULL, hunterThreadFunction, building.hunters.hunters[0]);
+    //pthread_create(&hunterThread2, NULL, hunterThreadFunction, building.hunters.hunters[1]);
+    //pthread_create(&hunterThread3, NULL, hunterThreadFunction, building.hunters.hunters[2]);
+    //pthread_create(&hunterThread4, NULL, hunterThreadFunction, building.hunters.hunters[3]);
     
     //joining threads
     pthread_join(ghostThread, NULL);
-    pthread_join(hunterThread1, NULL);
-    pthread_join(hunterThread2, NULL);
-    pthread_join(hunterThread3, NULL);
-    pthread_join(hunterThread4, NULL);	
+    //pthread_join(hunterThread1, NULL);
+    //pthread_join(hunterThread2, NULL);
+    //pthread_join(hunterThread3, NULL);
+    //pthread_join(hunterThread4, NULL);	
     
-    /*
+    if (building.rooms.head->room->hunters.size == 4) printf("hunters in van\n");
+    printf("%d\n", building.rooms.head->room->hunters.size);
+    
+    
     //testing section
     //prints all rooms with all their evidence
     RoomNodeType* curr = building.rooms.head;
@@ -88,7 +91,7 @@ int main(int argc, char *argv[])
     }
     
     //end of testing section
-    */
+    
 
     cleanupBuilding(&building);
     return 0;

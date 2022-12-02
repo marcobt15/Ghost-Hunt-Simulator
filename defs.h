@@ -67,7 +67,7 @@ typedef struct roomType{
 	EvidenceListType* evidence;
 	HunterArrayType hunters;
 	GhostType* ghost;
-	sem_t* mutex; //so only 1 thread can affect each room at a time
+	sem_t mutex; //so only 1 thread can affect each room at a time
 } RoomType;
 
 typedef struct RoomNode{
@@ -86,6 +86,7 @@ typedef struct{
 	GhostType* ghost;
 	HunterArrayType hunters;
 	RoomListType rooms;
+	
 } BuildingType;
 
 //main functions
@@ -119,6 +120,10 @@ void moveRoom(GhostType**);
 void initGhost(GhostType*, GhostClassType, RoomType*);
 
 //Hunter functions
+void* hunterThreadFunction(void*);
+int collectEvidence(HunterType**);
+void moveHunter(HunterType**);
+void communicateEvidence(HunterType**);
 void initHunter(HunterType**, RoomNodeType*, EvidenceClassType, char*);
 void initHunterArray(HunterArrayType*);
 void addHunter(HunterArrayType*, HunterType*);
