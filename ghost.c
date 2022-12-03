@@ -3,7 +3,6 @@
 void* ghostThreadFunction(void* inputGhost){
 	GhostType* ghost = (GhostType*) inputGhost;
 	
-	
 	while (ghost->boredomTimer > 0){
 		RoomType* currRoom = ghost->room;
 		sem_wait(&(currRoom->mutex));
@@ -22,6 +21,7 @@ void* ghostThreadFunction(void* inputGhost){
 			}
 			
 			//if choice is 2 do nothing
+			else printf("ghost does nothing");
 		
 		}
 		
@@ -43,12 +43,10 @@ void* ghostThreadFunction(void* inputGhost){
 			}
 			
 			//if choice is 3 do nothing
+			else printf("ghost does nothing");
 		}
-		
 		sem_post(&(currRoom->mutex));
 	}
-	
-	
 	return (0);
 }
 
@@ -111,7 +109,6 @@ void leaveEvidence(GhostType** ghost){
 }
 
 void moveRoom(GhostType** ghost){
-	
 	RoomType* currRoom = (*ghost)->room;
 	
 	int adjacentRoomNum = currRoom->rooms->totalRooms;
@@ -124,11 +121,12 @@ void moveRoom(GhostType** ghost){
 	
 	else{
 		int roomChoice = randInt(0, adjacentRoomNum);
-		
 		currRoomChoice = currRoom->rooms->head;
+		
 		for (int i = 0; i < roomChoice; i++){
 			currRoomChoice = currRoomChoice->next;
 		}
+		
 	}
 	
 	if (sem_trywait(&(currRoomChoice->room->mutex)) == 0) {
@@ -138,8 +136,6 @@ void moveRoom(GhostType** ghost){
 		
 		sem_post(&(currRoomChoice->room->mutex));
 	}
-	
-	
 }
 
 void initGhost(GhostType* ghost, GhostClassType ghostClass, RoomType* room){

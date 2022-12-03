@@ -5,6 +5,9 @@ void* hunterThreadFunction(void* inputHunter){
 	int amountOfGhostEvidence = 0;
 	
 	while (hunter->fearTimer < 100 && hunter->boredomTimer > 0){
+		RoomType* currRoom = hunter->room;
+		sem_wait(&(currRoom->mutex));
+	
 		//room has ghost
 		if (hunter->room->ghost != NULL){
 			hunter->fearTimer++;
@@ -16,13 +19,14 @@ void* hunterThreadFunction(void* inputHunter){
 		int ghostEvidenceCheck;
 		if (hunter->room->hunters.size > 1){
 			choice = randInt(1,4);
+			printf("%d\n", choice);
 			
 			//choice 1 collects
 			if (choice == 1){
 				ghostEvidenceCheck = collectEvidence(&hunter);
 				amountOfGhostEvidence += ghostEvidenceCheck;
-				
 				if (ghostEvidenceCheck == 1) hunter->boredomTimer = BOREDOM_MAX;
+				
 			}
 			
 			//choice 2 means move
@@ -39,7 +43,9 @@ void* hunterThreadFunction(void* inputHunter){
 		
 		//only yourself
 		else{
+			
 			choice = randInt(1,3);
+			printf("%d\n", choice);
 			
 			//choice 1 collect
 			if (choice == 1){
@@ -56,6 +62,7 @@ void* hunterThreadFunction(void* inputHunter){
 			}
 		}
 		
+		sem_post(&(currRoom->mutex));
 		if (amountOfGhostEvidence == 3) break;
 		
 	}
@@ -88,6 +95,7 @@ int collectEvidence(HunterType **hunter){
 				
 				follow->next = pointer->next;
 				//found ghostly evidence
+				printf("%s collects ghost evidence \n", (*hunter)->name);
 				return 1;
 			}
 			follow = pointer;
@@ -97,7 +105,6 @@ int collectEvidence(HunterType **hunter){
 	
 	//create random standard evidence
 	//reused switch case
-	
 	float evidenceValue;
 	switch ((*hunter)->readableEvidence){
 		case EMF:
@@ -124,6 +131,7 @@ int collectEvidence(HunterType **hunter){
     	newEvidenceNode->evidence = newEvidence;
 	
 	addEvidence((*hunter)->evidence, newEvidenceNode);
+	printf("%s collects standard evidence \n", (*hunter)->name);
 	//no ghostly evidence 
 	return 0;	
 		
@@ -131,6 +139,38 @@ int collectEvidence(HunterType **hunter){
 
 void moveHunter(HunterType** hunter){
 	RoomType* currRoom = (*hunter)->room;
+	
+	//move to different room
+	int adjacentRoomNum = currRoom->rooms->totalRooms;
+	RoomNodeType* currRoomChoice;
+	
+	//divison by 0 in randInt function if this check isn't made
+	if (adjacentRoomNum == 1){
+		currRoomChoice = currRoom->rooms->head;
+	}
+	
+	else{
+		int roomChoice = randInt(0, adjacentRoomNum);
+		
+		currRoomChoice = currRoom->rooms->head; 
+		for (int i = 0; i < roomChoice; i++){
+			currRoomChoice = currRoomChoice->next;
+		}
+	}
+	
+	//if the room cannot be accessed don't move
+	if (sem_trywait(&(currRoomChoice->room->mutex)) != 0) {
+		printf("%s could not move\n", (*hunter)->name);
+		return;
+	}
+	
+	//otherwise continue to do things
+	
+	(*hunter)->room = currRoomChoice->room;
+	//update hunter arr for curr room 
+	addHunter(&currRoomChoice->room->hunters, (*hunter));
+	
+	
 	//delete hunter from hunter array
 	//loop through array and compare? - move all items in hunter array?
 	
@@ -152,33 +192,13 @@ void moveHunter(HunterType** hunter){
 		
 	}
 	
+	//1 less hunter in room now
+	currRoom->hunters.size--;
 	for(int i = hunterPos; i < currRoom->hunters.size; i++){
 		currRoom->hunters.hunters[i] = currRoom->hunters.hunters[i+1];
 	}
-	//1 less hunter in room now
-	currRoom->hunters.size--;
-	
-	//move to different room
-	int adjacentRoomNum = currRoom->rooms->totalRooms;
-	RoomNodeType* currRoomChoice;
-	
-	//divison by 0 in randInt function if this check isn't made
-	if (adjacentRoomNum == 1){
-		currRoomChoice = currRoom->rooms->head;
-	}
-	
-	else{
-		int roomChoice = randInt(0, adjacentRoomNum);
-		
-		currRoomChoice = currRoom->rooms->head; 
-		for (int i = 0; i < roomChoice; i++){
-			currRoomChoice = currRoomChoice->next;
-		}
-	}
-	
-	(*hunter)->room = currRoomChoice->room;
-	//update hunter arr for curr room 
-	addHunter(&currRoomChoice->room->hunters, (*hunter));
+	printf("%s moved to %s \n", (*hunter)->name, (*hunter)->room->name);
+	sem_post(&(currRoomChoice->room->mutex));
 }
 
 //communicate function
@@ -215,6 +235,9 @@ void communicateEvidence(HunterType** hunter){
 
 void initHunter(HunterType** hunter, RoomNodeType* roomNode, EvidenceClassType readableEvidence, char* name){
 	(*hunter)->room = roomNode->room;
+	
+	addHunter(&(roomNode->room->hunters), (*hunter));
+	
 	(*hunter)->readableEvidence = readableEvidence;
 	
 	EvidenceListType* evidenceList = malloc(sizeof(EvidenceListType));
