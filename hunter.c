@@ -164,18 +164,22 @@ void moveHunter(HunterType** hunter){
 		return;
 	}
 	
+	printf("right after semwait in movehunter\n");
+	
 	//otherwise continue to do things
 	
 	(*hunter)->room = currRoomChoice->room;
 	//update hunter arr for curr room 
-	addHunter(&currRoomChoice->room->hunters, (*hunter));
+	addHunter(&(currRoomChoice->room->hunters), (*hunter));
 	
+	printf("After moving hunter into new room and changing room stuff\n");
 	
 	//delete hunter from hunter array
 	//loop through array and compare? - move all items in hunter array?
 	
 	//1 hunter in room
 	if(currRoom->hunters.size == 1){
+		printf("into 1 hunter in a room");
 		//how to access hunters array as a pointer??
 		currRoom->hunters.hunters[0] = NULL;
 		currRoom->hunters.size = 0;

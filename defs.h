@@ -85,7 +85,7 @@ typedef struct RoomList{
 typedef struct{
 	GhostType* ghost;
 	HunterArrayType hunters;
-	RoomListType rooms;
+	RoomListType* rooms;
 	
 } BuildingType;
 
@@ -99,8 +99,8 @@ void cleanupBuilding(BuildingType*);
 void initBuilding(BuildingType*);
 
 //Room functions
-void initRoom(RoomType**, char*);
-void initRoomList(RoomListType*);
+void initRoom(RoomType*, char*);
+void initRoomList(RoomListType**);
 void appendRoom(RoomListType*, RoomNodeType*);
 void connectRooms(RoomType*, RoomType*);
 void cleanupRoomData(RoomListType*);

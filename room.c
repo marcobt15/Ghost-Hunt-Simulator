@@ -1,27 +1,27 @@
 #include "defs.h"
 
-void initRoom(RoomType** room, char* name){
-	strcpy((*room)->name, name);
+void initRoom(RoomType* room, char* name){
+	strcpy(room->name, name);
 	
 	RoomListType* roomList = malloc(sizeof(RoomListType));
-	(*room)->rooms = roomList;
-	initRoomList((*room)->rooms);
+	room->rooms = roomList;
+	initRoomList(&room->rooms);
 	
 	EvidenceListType* evidenceList = malloc(sizeof(EvidenceListType));
-	(*room)->evidence = evidenceList;
-	initEvidenceList((*room)->evidence);
+	(room)->evidence = evidenceList;
+	initEvidenceList(room->evidence);
 	
-	initHunterArray(&(*room)->hunters);
+	initHunterArray(&room->hunters);
 	
-	(*room)->ghost = NULL;
+	room->ghost = NULL;
 	
-	sem_init(&(*room)->mutex, 0, 1);
+	sem_init(&room->mutex, 0, 1);
 }
 
-void initRoomList(RoomListType* roomList){
-	roomList->head = NULL;
-	roomList->tail = NULL;
-	roomList->totalRooms = 0;
+void initRoomList(RoomListType** roomList){
+	(*roomList)->head = NULL;
+	(*roomList)->tail = NULL;
+	(*roomList)->totalRooms = 0;
 }
 
 void appendRoom(RoomListType* list, RoomNodeType* room){

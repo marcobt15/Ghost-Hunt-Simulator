@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 	HunterType* newHunter = malloc(sizeof(HunterType));
 	EvidenceClassType evidence = i;
 
-	initHunter(&newHunter, building.rooms.head, evidence, name);
+	initHunter(&newHunter, building.rooms->head, evidence, name);
 	addHunter(&building.hunters, newHunter);
     }
     
@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
 
     //getting random room
     int roomNumber = randInt(1, 12); //13 is the amount of rooms given so move 12 times to get there
-    RoomNodeType* currRoom = building.rooms.head;
+    RoomNodeType* currRoom = building.rooms->head;
     for (int i = 0; i < roomNumber; i++){
     	currRoom = currRoom->next;
     }
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     //pthread_create(&ghostThread, NULL, ghostThreadFunction, building.ghost);
     
     //hunter threads
-    pthread_t hunterThread1, hunterThread2, hunterThread3, hunterThread4;
+    pthread_t hunterThread1;//, hunterThread2, hunterThread3, hunterThread4;
     pthread_create(&hunterThread1, NULL, hunterThreadFunction, building.hunters.hunters[0]);
     //pthread_create(&hunterThread2, NULL, hunterThreadFunction, building.hunters.hunters[1]);
     //pthread_create(&hunterThread3, NULL, hunterThreadFunction, building.hunters.hunters[2]);
