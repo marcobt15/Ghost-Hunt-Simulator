@@ -100,7 +100,7 @@ void initBuilding(BuildingType*);
 
 //Room functions
 void initRoom(RoomType*, char*);
-void initRoomList(RoomListType**);
+void initRoomList(RoomListType*);
 void appendRoom(RoomListType*, RoomNodeType*);
 void connectRooms(RoomType*, RoomType*);
 void cleanupRoomData(RoomListType*);
@@ -115,16 +115,16 @@ void cleanupEvidenceList(EvidenceListType*);
 
 //Ghost functions
 void* ghostThreadFunction(void*);
-void leaveEvidence(GhostType**);
-void moveRoom(GhostType**);
+void leaveEvidence(GhostType*);
+void moveRoom(GhostType*);
 void initGhost(GhostType*, GhostClassType, RoomType*);
 
 //Hunter functions
 void* hunterThreadFunction(void*);
-int collectEvidence(HunterType**);
-void moveHunter(HunterType**);
-void communicateEvidence(HunterType**);
-void initHunter(HunterType**, RoomNodeType*, EvidenceClassType, char*);
+int collectEvidence(HunterType*);
+void moveHunter(HunterType*);
+void communicateEvidence(HunterType*);
+void initHunter(HunterType*, RoomNodeType*, EvidenceClassType, char*);
 void initHunterArray(HunterArrayType*);
 void addHunter(HunterArrayType*, HunterType*);
 void cleanupHunterArray(HunterArrayType*);

@@ -92,7 +92,7 @@ void populateRooms(BuildingType* building) {
     utility_room_node->room = utility_room;
 
     // Building->rooms might be a linked list structre, or maybe just a node.
-    initRoomList(&building->rooms);
+    initRoomList(building->rooms);
 
     appendRoom(building->rooms, van_node);
     appendRoom(building->rooms, hallway_node);

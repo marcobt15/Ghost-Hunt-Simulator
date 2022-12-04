@@ -15,11 +15,15 @@ int main(int argc, char *argv[])
     for (int i = 0; i < MAX_HUNTERS; i++){
     	printf("Enter the name of the hunter: ");
 	fgets(name, MAX_STR, stdin);
+	
+	//getting rid of the \n in the name[]
+	int strLength = strlen(name);
+	if (name[strLength-1] == '\n') name[strLength-1] = '\0';
 
 	HunterType* newHunter = malloc(sizeof(HunterType));
 	EvidenceClassType evidence = i;
 
-	initHunter(&newHunter, building.rooms->head, evidence, name);
+	initHunter(newHunter, building.rooms->head, evidence, name);
 	addHunter(&building.hunters, newHunter);
     }
     
@@ -35,6 +39,8 @@ int main(int argc, char *argv[])
     for (int i = 0; i < roomNumber; i++){
     	currRoom = currRoom->next;
     }
+    
+    printf("%s\n", currRoom->room->name);
     
     //inialize the ghost with the random ghost class and room
     initGhost(&ghost, ghostClassNumber, currRoom->room);
@@ -76,7 +82,7 @@ int main(int argc, char *argv[])
     	curr = curr->next;
     }
     
-    //end of testing section
+   
     */
     /*
     RoomType* Hallway = building.rooms.head->next->room;
@@ -86,7 +92,7 @@ int main(int argc, char *argv[])
     	currAdjRoom = currAdjRoom->next;
     }
     */
-
+    //end of testing section
     cleanupBuilding(&building);
     return 0;
 }

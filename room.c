@@ -5,7 +5,7 @@ void initRoom(RoomType* room, char* name){
 	
 	RoomListType* roomList = malloc(sizeof(RoomListType));
 	room->rooms = roomList;
-	initRoomList(&room->rooms);
+	initRoomList(room->rooms);
 	
 	EvidenceListType* evidenceList = malloc(sizeof(EvidenceListType));
 	(room)->evidence = evidenceList;
@@ -18,10 +18,10 @@ void initRoom(RoomType* room, char* name){
 	sem_init(&room->mutex, 0, 1);
 }
 
-void initRoomList(RoomListType** roomList){
-	(*roomList)->head = NULL;
-	(*roomList)->tail = NULL;
-	(*roomList)->totalRooms = 0;
+void initRoomList(RoomListType* roomList){
+	roomList->head = NULL;
+	roomList->tail = NULL;
+	roomList->totalRooms = 0;
 }
 
 void appendRoom(RoomListType* list, RoomNodeType* room){

@@ -19,45 +19,44 @@ void* hunterThreadFunction(void* inputHunter){
 		int ghostEvidenceCheck;
 		if (hunter->room->hunters.size > 1){
 			choice = randInt(1,4);
-			printf("%d\n", choice);
 			
 			//choice 1 collects
 			if (choice == 1){
-				ghostEvidenceCheck = collectEvidence(&hunter);
+				ghostEvidenceCheck = collectEvidence(hunter);
 				amountOfGhostEvidence += ghostEvidenceCheck;
 				if (ghostEvidenceCheck == 1) hunter->boredomTimer = BOREDOM_MAX;
+				else hunter->boredomTimer--;
 				
 			}
 			
 			//choice 2 means move
 			else if (choice == 2){
-				moveHunter(&hunter);
+				moveHunter(hunter);
 				hunter->boredomTimer--;
 			}
 			
 			//give evidence to other hunters
 			else if (choice == 3){
-				communicateEvidence(&hunter);
+				communicateEvidence(hunter);
+				hunter->boredomTimer--;
 			}
 		}
 		
 		//only yourself
-		else{
-			
+		else{		
 			choice = randInt(1,3);
-			printf("%d\n", choice);
 			
 			//choice 1 collect
 			if (choice == 1){
-				ghostEvidenceCheck = collectEvidence(&hunter);
+				ghostEvidenceCheck = collectEvidence(hunter);
 				amountOfGhostEvidence += ghostEvidenceCheck;
-				
 				if (ghostEvidenceCheck == 1) hunter->boredomTimer = BOREDOM_MAX;
+				else hunter->boredomTimer--;
 			}
 			
 			//choice 2 move
 			else if (choice == 2){
-				moveHunter(&hunter);
+				moveHunter(hunter);
 				hunter->boredomTimer--;
 			}
 		}
@@ -70,32 +69,32 @@ void* hunterThreadFunction(void* inputHunter){
 	return (0);
 }
 
-int collectEvidence(HunterType **hunter){
+int collectEvidence(HunterType* hunter){
 	//move through rooms linked list and compare if evidenceType matches
-	if((*hunter)->room->evidence->head != NULL){
+	if(hunter->room->evidence->head != NULL){
 		//walk through linked list
 		//return 1 if ghostly evidence type matches 
-		EvidenceNodeType *pointer = (*hunter)->room->evidence->head;
+		EvidenceNodeType *pointer = hunter->room->evidence->head;
 		EvidenceNodeType *follow = NULL;
 		
 		while(pointer != NULL){
-			if(pointer->evidence->evidenceType == (*hunter)->readableEvidence){
+			if(pointer->evidence->evidenceType == hunter->readableEvidence){
 				//put evidence from room into hunters evidence linked list
 				//->use tail
 				//can we just set it to pointer?
-				if((*hunter)->evidence->head == NULL){
-					(*hunter)->evidence->head = pointer; //?
-					(*hunter)->evidence->tail = (*hunter)->evidence->head;
+				if(hunter->evidence->head == NULL){
+					hunter->evidence->head = pointer; //?
+					hunter->evidence->tail = hunter->evidence->head;
 				}
 				else{
-					(*hunter)->evidence->tail->next = pointer; //?
-					(*hunter)->evidence->tail = pointer;
+					hunter->evidence->tail->next = pointer; //?
+					hunter->evidence->tail = pointer;
 				}
 				
 				
 				follow->next = pointer->next;
 				//found ghostly evidence
-				printf("%s collects ghost evidence \n", (*hunter)->name);
+				printf("%s collects ghost evidence \n", hunter->name);
 				return 1;
 			}
 			follow = pointer;
@@ -106,7 +105,7 @@ int collectEvidence(HunterType **hunter){
 	//create random standard evidence
 	//reused switch case
 	float evidenceValue;
-	switch ((*hunter)->readableEvidence){
+	switch (hunter->readableEvidence){
 		case EMF:
 			evidenceValue = randFloat(0.0, 4.90);
 			break;
@@ -125,20 +124,20 @@ int collectEvidence(HunterType **hunter){
 	}
 	
 	EvidenceType* newEvidence = calloc(1, sizeof(EvidenceType));
-	initEvidenceType(newEvidence, (*hunter)->readableEvidence, evidenceValue, 0);
+	initEvidenceType(newEvidence, hunter->readableEvidence, evidenceValue, 0);
 	
 	EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
     	newEvidenceNode->evidence = newEvidence;
 	
-	addEvidence((*hunter)->evidence, newEvidenceNode);
-	printf("%s collects standard evidence \n", (*hunter)->name);
+	addEvidence(hunter->evidence, newEvidenceNode);
+	printf("%s collects standard evidence \n", hunter->name);
 	//no ghostly evidence 
 	return 0;	
 		
 }
 
-void moveHunter(HunterType** hunter){
-	RoomType* currRoom = (*hunter)->room;
+void moveHunter(HunterType* hunter){
+	RoomType* currRoom = hunter->room;
 	
 	//move to different room
 	int adjacentRoomNum = currRoom->rooms->totalRooms;
@@ -160,64 +159,61 @@ void moveHunter(HunterType** hunter){
 	
 	//if the room cannot be accessed don't move
 	if (sem_trywait(&(currRoomChoice->room->mutex)) != 0) {
-		printf("%s could not move\n", (*hunter)->name);
+		printf("%s could not move\n", hunter->name);
 		return;
 	}
 	
-	printf("right after semwait in movehunter\n");
-	
 	//otherwise continue to do things
 	
-	(*hunter)->room = currRoomChoice->room;
+	hunter->room = currRoomChoice->room;
 	//update hunter arr for curr room 
-	addHunter(&(currRoomChoice->room->hunters), (*hunter));
-	
-	printf("After moving hunter into new room and changing room stuff\n");
+	addHunter(&(currRoomChoice->room->hunters), hunter);
 	
 	//delete hunter from hunter array
 	//loop through array and compare? - move all items in hunter array?
 	
 	//1 hunter in room
 	if(currRoom->hunters.size == 1){
-		printf("into 1 hunter in a room");
 		//how to access hunters array as a pointer??
 		currRoom->hunters.hunters[0] = NULL;
 		currRoom->hunters.size = 0;
-		return;
 	}
 	
-	int hunterPos;
-	for(int i = 0; i < currRoom->hunters.size; i++){
-		//comparing addresses
-		if(currRoom->hunters.hunters[i] == (*hunter)){
-			hunterPos = i;
-			break;
+	else{
+		int hunterPos;
+		for(int i = 0; i < currRoom->hunters.size; i++){
+			//comparing addresses
+			if(currRoom->hunters.hunters[i] == hunter){
+				hunterPos = i;
+				break;
+			}
+			
 		}
 		
+		//1 less hunter in room now
+		currRoom->hunters.size--;
+		for(int i = hunterPos; i < currRoom->hunters.size; i++){
+			currRoom->hunters.hunters[i] = currRoom->hunters.hunters[i+1];
+		}
 	}
 	
-	//1 less hunter in room now
-	currRoom->hunters.size--;
-	for(int i = hunterPos; i < currRoom->hunters.size; i++){
-		currRoom->hunters.hunters[i] = currRoom->hunters.hunters[i+1];
-	}
-	printf("%s moved to %s \n", (*hunter)->name, (*hunter)->room->name);
+	printf("%s moved to %s \n", hunter->name, hunter->room->name);
 	sem_post(&(currRoomChoice->room->mutex));
 }
 
 //communicate function
-void communicateEvidence(HunterType** hunter){
+void communicateEvidence(HunterType* hunter){
 	//get random hunter number in size of arraylist
-	int hunterChoice = randInt(0, (*hunter)->room->hunters.size);
+	int hunterChoice = randInt(0, hunter->room->hunters.size);
 	//if its the curr hunter try again
-	while ((*hunter)->room->hunters.hunters[hunterChoice] == (*hunter)){
-		hunterChoice = randInt(0, (*hunter)->room->hunters.size);
+	while (hunter->room->hunters.hunters[hunterChoice] == hunter){
+		hunterChoice = randInt(0, hunter->room->hunters.size);
 	}
 	
-	HunterType* otherHunter = (*hunter)->room->hunters.hunters[hunterChoice];
+	HunterType* otherHunter = hunter->room->hunters.hunters[hunterChoice];
 	
 	//loop through current hunter's evidence and its its ghostly add it to the other hunters evidence list
-	EvidenceNodeType* currEvidence = (*hunter)->evidence->head;
+	EvidenceNodeType* currEvidence = hunter->evidence->head;
 	while(currEvidence != NULL){
 		//if its ghost evidence append to other hunter list
 		//decided to duplicate evidence
@@ -233,25 +229,24 @@ void communicateEvidence(HunterType** hunter){
 		}
 		currEvidence = currEvidence->next;
 	}
+	printf("%s gave his ghost evidence to %s\n", hunter->name, otherHunter->name);
 }
 
-
-
-void initHunter(HunterType** hunter, RoomNodeType* roomNode, EvidenceClassType readableEvidence, char* name){
-	(*hunter)->room = roomNode->room;
+void initHunter(HunterType* hunter, RoomNodeType* roomNode, EvidenceClassType readableEvidence, char* name){
+	hunter->room = roomNode->room;
 	
-	addHunter(&(roomNode->room->hunters), (*hunter));
+	addHunter(&(roomNode->room->hunters), hunter);
 	
-	(*hunter)->readableEvidence = readableEvidence;
+	hunter->readableEvidence = readableEvidence;
 	
 	EvidenceListType* evidenceList = malloc(sizeof(EvidenceListType));
-	(*hunter)->evidence = evidenceList;
-	initEvidenceList((*hunter)->evidence);
+	hunter->evidence = evidenceList;
+	initEvidenceList(hunter->evidence);
 	
-	strcpy((*hunter)->name, name);
-	(*hunter)->fearTimer = 0;
+	strcpy(hunter->name, name);
+	hunter->fearTimer = 0;
 	
-	(*hunter)->boredomTimer = BOREDOM_MAX;
+	hunter->boredomTimer = BOREDOM_MAX;
 }
 
 void initHunterArray(HunterArrayType* hunterList){

@@ -17,11 +17,11 @@ void* ghostThreadFunction(void* inputGhost){
 			
 			//leave evidence choice
 			if (choice == 1){
-				leaveEvidence(&ghost);
+				leaveEvidence(ghost);
 			}
 			
 			//if choice is 2 do nothing
-			else printf("ghost does nothing");
+			else printf("The ghost does nothing");
 		
 		}
 		
@@ -34,26 +34,26 @@ void* ghostThreadFunction(void* inputGhost){
 			
 			//move room choice
 			if (choice == 1){
-				moveRoom(&ghost);
+				moveRoom(ghost);
 			}
 			
 			//leave evidence choice
 			else if (choice == 2){
-				leaveEvidence(&ghost);
+				leaveEvidence(ghost);
 			}
 			
 			//if choice is 3 do nothing
-			else printf("ghost does nothing");
+			else printf("The ghost does nothing");
 		}
 		sem_post(&(currRoom->mutex));
 	}
 	return (0);
 }
 
-void leaveEvidence(GhostType** ghost){
+void leaveEvidence(GhostType* ghost){
 
 	int evidenceChoice;
-	switch ((*ghost)->ghostType){
+	switch (ghost->ghostType){
 	
 		case POLTERGEIST:
 			//Choices match to 0, 1, 2
@@ -105,11 +105,12 @@ void leaveEvidence(GhostType** ghost){
 	EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
     	newEvidenceNode->evidence = newEvidence;
 	
-	addEvidence((*ghost)->room->evidence, newEvidenceNode);
+	addEvidence(ghost->room->evidence, newEvidenceNode);
+	printf("The ghost just dropped some evidence in: %s\n", ghost->room->name);
 }
 
-void moveRoom(GhostType** ghost){
-	RoomType* currRoom = (*ghost)->room;
+void moveRoom(GhostType* ghost){
+	RoomType* currRoom = ghost->room;
 	
 	int adjacentRoomNum = currRoom->rooms->totalRooms;
 	RoomNodeType* currRoomChoice;
@@ -130,12 +131,16 @@ void moveRoom(GhostType** ghost){
 	}
 	
 	if (sem_trywait(&(currRoomChoice->room->mutex)) == 0) {
-		(*ghost)->room = currRoomChoice->room;
-		currRoomChoice->room->ghost = (*ghost);
+		ghost->room = currRoomChoice->room;
+		currRoomChoice->room->ghost = ghost;
 		currRoom->ghost = NULL;
 		
+		
 		sem_post(&(currRoomChoice->room->mutex));
+		printf("The ghost just moved to %s \n", ghost->room->name);
+		return;
 	}
+	printf("The ghost was unable to move rooms");
 }
 
 void initGhost(GhostType* ghost, GhostClassType ghostClass, RoomType* room){
