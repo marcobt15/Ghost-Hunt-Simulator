@@ -21,7 +21,7 @@ void* ghostThreadFunction(void* inputGhost){
 			}
 			
 			//if choice is 2 do nothing
-			else printf("The ghost does nothing");
+			else printf("The ghost does nothing\n");
 		
 		}
 		
@@ -43,10 +43,15 @@ void* ghostThreadFunction(void* inputGhost){
 			}
 			
 			//if choice is 3 do nothing
-			else printf("The ghost does nothing");
+			else printf("The ghost does nothing\n");
 		}
 		sem_post(&(currRoom->mutex));
+		//usleep(USLEEP_TIME);
 	}
+	printf("The ghost got bored and left the building\n");
+	
+	ghost->room->ghost = NULL;
+	
 	return (0);
 }
 
@@ -135,12 +140,12 @@ void moveRoom(GhostType* ghost){
 		currRoomChoice->room->ghost = ghost;
 		currRoom->ghost = NULL;
 		
-		
 		sem_post(&(currRoomChoice->room->mutex));
 		printf("The ghost just moved to %s \n", ghost->room->name);
 		return;
 	}
-	printf("The ghost was unable to move rooms");
+	
+	printf("The ghost tried to move rooms but was unable");
 }
 
 void initGhost(GhostType* ghost, GhostClassType ghostClass, RoomType* room){

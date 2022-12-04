@@ -4,7 +4,7 @@ void* hunterThreadFunction(void* inputHunter){
 	HunterType* hunter = (HunterType*) inputHunter;
 	int amountOfGhostEvidence = 0;
 	
-	while (hunter->fearTimer < 100 && hunter->boredomTimer > 0){
+	while (hunter->fearTimer < MAX_FEAR && hunter->boredomTimer > 0){
 		RoomType* currRoom = hunter->room;
 		sem_wait(&(currRoom->mutex));
 	
@@ -62,9 +62,12 @@ void* hunterThreadFunction(void* inputHunter){
 		}
 		
 		sem_post(&(currRoom->mutex));
+		//usleep(USLEEP_TIME);
 		if (amountOfGhostEvidence == 3) break;
 		
 	}
+	removeHunterFromRoom(hunter->room, hunter);
+	printf("Hunter left for unknown reason\n");
 
 	return (0);
 }
@@ -91,15 +94,35 @@ int collectEvidence(HunterType* hunter){
 					hunter->evidence->tail = pointer;
 				}
 				
+				//1 element list
+				if (pointer == hunter->room->evidence->head && pointer == hunter->room->evidence->tail){
+					hunter->room->evidence->head = NULL;
+					hunter->room->evidence->tail = NULL;
+				}
 				
-				follow->next = pointer->next;
-				//found ghostly evidence
-				printf("%s collects ghost evidence \n", hunter->name);
-				return 1;
+				//>1 element and removing from tail
+				else if (pointer == hunter->room->evidence->tail){
+					hunter->room->evidence->tail = follow;
+					follow->next = NULL;
+				}
+				//>1 element and removing from middle
+				else if (follow != NULL){ 
+					follow->next = pointer->next;
+				}
+				
+				//>1 element and removing from head
+				else if (follow == NULL){ 
+					hunter->room->evidence->head = pointer->next;
+				}
+				pointer->next = NULL; //since its added to new evidence list
+				
 			}
 			follow = pointer;
 			pointer = pointer->next;
 		}
+		//found ghostly evidence
+		printf("%s collects ghost evidence \n", hunter->name);
+		return 1;
 	}
 	
 	//create random standard evidence
@@ -172,6 +195,9 @@ void moveHunter(HunterType* hunter){
 	//delete hunter from hunter array
 	//loop through array and compare? - move all items in hunter array?
 	
+	removeHunterFromRoom(currRoom, hunter);
+	
+	/*
 	//1 hunter in room
 	if(currRoom->hunters.size == 1){
 		//how to access hunters array as a pointer??
@@ -196,6 +222,7 @@ void moveHunter(HunterType* hunter){
 			currRoom->hunters.hunters[i] = currRoom->hunters.hunters[i+1];
 		}
 	}
+	*/
 	
 	printf("%s moved to %s \n", hunter->name, hunter->room->name);
 	sem_post(&(currRoomChoice->room->mutex));
@@ -247,6 +274,33 @@ void initHunter(HunterType* hunter, RoomNodeType* roomNode, EvidenceClassType re
 	hunter->fearTimer = 0;
 	
 	hunter->boredomTimer = BOREDOM_MAX;
+}
+
+void removeHunterFromRoom(RoomType* currRoom, HunterType* hunter){
+	//1 hunter in room
+	if(currRoom->hunters.size == 1){
+		//how to access hunters array as a pointer??
+		currRoom->hunters.hunters[0] = NULL;
+		currRoom->hunters.size = 0;
+	}
+	
+	else{
+		int hunterPos;
+		for(int i = 0; i < currRoom->hunters.size; i++){
+			//comparing addresses
+			if(currRoom->hunters.hunters[i] == hunter){
+				hunterPos = i;
+				break;
+			}
+			
+		}
+		
+		//1 less hunter in room now
+		currRoom->hunters.size--;
+		for(int i = hunterPos; i < currRoom->hunters.size; i++){
+			currRoom->hunters.hunters[i] = currRoom->hunters.hunters[i+1];
+		}
+	}
 }
 
 void initHunterArray(HunterArrayType* hunterList){

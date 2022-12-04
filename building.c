@@ -13,6 +13,7 @@ void cleanupBuilding(BuildingType* building){
 	cleanupRoomData(building->rooms);
 	cleanupRoomList(building->rooms);
 	cleanupHunterArray(&building->hunters);
+	free(building->rooms);
 }
 
 /*

@@ -40,26 +40,21 @@ int main(int argc, char *argv[])
     	currRoom = currRoom->next;
     }
     
-    printf("%s\n", currRoom->room->name);
-    
     //inialize the ghost with the random ghost class and room
     initGhost(&ghost, ghostClassNumber, currRoom->room);
     currRoom->room->ghost = &ghost; //room has the ghost
     building.ghost = &ghost; //building has the ghost
    
-    //ghost thread
-    //pthread_t ghostThread;
-    //pthread_create(&ghostThread, NULL, ghostThreadFunction, building.ghost);
+    pthread_t ghostThread, hunterThread1;//, hunterThread2, hunterThread3, hunterThread4;
     
-    //hunter threads
-    pthread_t hunterThread1;//, hunterThread2, hunterThread3, hunterThread4;
+    pthread_create(&ghostThread, NULL, ghostThreadFunction, building.ghost);
     pthread_create(&hunterThread1, NULL, hunterThreadFunction, building.hunters.hunters[0]);
     //pthread_create(&hunterThread2, NULL, hunterThreadFunction, building.hunters.hunters[1]);
     //pthread_create(&hunterThread3, NULL, hunterThreadFunction, building.hunters.hunters[2]);
     //pthread_create(&hunterThread4, NULL, hunterThreadFunction, building.hunters.hunters[3]);
     
     //joining threads
-    //pthread_join(ghostThread, NULL);
+    pthread_join(ghostThread, NULL);
     pthread_join(hunterThread1, NULL);
     //pthread_join(hunterThread2, NULL);
     //pthread_join(hunterThread3, NULL);
@@ -93,6 +88,40 @@ int main(int argc, char *argv[])
     }
     */
     //end of testing section
+    
+    printf("Here are all the Hunter who got too scared:\n");
+    int scaredHunters = 0;
+    for (int i = 0; i < MAX_HUNTERS; i++){
+    	if (building.hunters.hunters[i]->fearTimer >= 100){
+    		printf("\t%s\n", building.hunters.hunters[i]->name);
+    		scaredHunters++;
+    	}
+    }
+    
+    if (scaredHunters == MAX_HUNTERS){
+    	char ghostName[MAX_STR];
+    	switch (building.ghost->ghostType){
+    		case POLTERGEIST:
+    			strcpy(ghostName, "POLTERGEIST");
+    			break;
+    			
+		case BANSHEE:
+			strcpy(ghostName, "BANSHEE");
+			break;
+			
+		case BULLIES:
+			strcpy(ghostName, "BULLIES");
+			break;
+			
+		case PHANTOM:
+			strcpy(ghostName, "PHANTOM");
+			break;
+    	}
+    	
+    	printf("The %s has won! All the huntes got scared and left", ghostName);
+    }
+    
+    
     cleanupBuilding(&building);
     return 0;
 }

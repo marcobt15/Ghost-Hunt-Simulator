@@ -10,7 +10,7 @@
 #define MAX_STR            64
 #define FEAR_RATE           1
 #define MAX_FEAR          100
-#define MAX_HUNTERS         4
+#define MAX_HUNTERS         1 // should be 4
 #define USLEEP_TIME     50000
 #define BOREDOM_MAX        99
 
@@ -78,7 +78,7 @@ typedef struct RoomNode{
 typedef struct RoomList{
 	RoomNodeType* head;
 	RoomNodeType* tail; //for insertion
-	int totalRooms; //for moving in adjacent rooms
+	int totalRooms; //for moving in adjacent rooms and total adjacent rooms will not decrease
 } RoomListType;
 
 //building stuff
@@ -125,6 +125,7 @@ int collectEvidence(HunterType*);
 void moveHunter(HunterType*);
 void communicateEvidence(HunterType*);
 void initHunter(HunterType*, RoomNodeType*, EvidenceClassType, char*);
+void removeHunterFromRoom(RoomType*, HunterType*);
 void initHunterArray(HunterArrayType*);
 void addHunter(HunterArrayType*, HunterType*);
 void cleanupHunterArray(HunterArrayType*);
