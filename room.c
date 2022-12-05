@@ -41,10 +41,12 @@ void appendRoom(RoomListType* list, RoomNodeType* room){
 void connectRooms(RoomType* room1, RoomType* room2){
 	RoomNodeType* room1Node = calloc(1, sizeof(RoomNodeType));
     	room1Node->room = room1;
+    	room1Node->next = NULL;
 	appendRoom(room2->rooms, room1Node);
 	
 	RoomNodeType* room2Node = calloc(1, sizeof(RoomNodeType));
     	room2Node->room = room2;
+    	room2Node->next = NULL;
 	appendRoom(room1->rooms, room2Node);
 }
 

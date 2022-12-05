@@ -1,8 +1,13 @@
 #include "defs.h"
+void pData(HunterType* h){
+	printf("%s has a fear level of %d and boredom timer of %d\n", h->name, h->fearTimer, h->boredomTimer);
+}
 
 void* hunterThreadFunction(void* inputHunter){
 	HunterType* hunter = (HunterType*) inputHunter;
-	int amountOfGhostEvidence = 0;
+	
+	//for checking ghost evidence it has
+	int diffEvidenceCollected = 0;
 	
 	while (hunter->fearTimer < MAX_FEAR && hunter->boredomTimer > 0){
 		RoomType* currRoom = hunter->room;
@@ -16,17 +21,16 @@ void* hunterThreadFunction(void* inputHunter){
 		
 		//another hunter
 		int choice;
-		int ghostEvidenceCheck;
 		if (hunter->room->hunters.size > 1){
 			choice = randInt(1,4);
 			
 			//choice 1 collects
 			if (choice == 1){
-				ghostEvidenceCheck = collectEvidence(hunter);
-				amountOfGhostEvidence += ghostEvidenceCheck;
-				if (ghostEvidenceCheck == 1) hunter->boredomTimer = BOREDOM_MAX;
+				if (collectEvidence(hunter)){
+					hunter->boredomTimer = BOREDOM_MAX;
+					removeStandardEvidence(hunter);
+				}
 				else hunter->boredomTimer--;
-				
 			}
 			
 			//choice 2 means move
@@ -37,6 +41,7 @@ void* hunterThreadFunction(void* inputHunter){
 			
 			//give evidence to other hunters
 			else if (choice == 3){
+				removeStandardEvidence(hunter);
 				communicateEvidence(hunter);
 				hunter->boredomTimer--;
 			}
@@ -48,9 +53,10 @@ void* hunterThreadFunction(void* inputHunter){
 			
 			//choice 1 collect
 			if (choice == 1){
-				ghostEvidenceCheck = collectEvidence(hunter);
-				amountOfGhostEvidence += ghostEvidenceCheck;
-				if (ghostEvidenceCheck == 1) hunter->boredomTimer = BOREDOM_MAX;
+				if (collectEvidence(hunter)){
+					hunter->boredomTimer = BOREDOM_MAX;
+					removeStandardEvidence(hunter);
+				}
 				else hunter->boredomTimer--;
 			}
 			
@@ -62,14 +68,109 @@ void* hunterThreadFunction(void* inputHunter){
 		}
 		
 		sem_post(&(currRoom->mutex));
-		//usleep(USLEEP_TIME);
-		if (amountOfGhostEvidence == 3) break;
+		
+		diffEvidenceCollected = checkForGhostEvidence(hunter->evidence);
+		
+		if (diffEvidenceCollected == 3) break;
+		
+		usleep(USLEEP_TIME);
+		pData(hunter);
+		//usleep(USLEEP_TIME*4);
 		
 	}
+	
 	removeHunterFromRoom(hunter->room, hunter);
-	printf("Hunter left for unknown reason\n");
+	if (hunter->fearTimer >= MAX_FEAR) printf("%s GOT TOO SCARED AND LEFT THE BUILDING\n", hunter->name);
+	else if (hunter->boredomTimer <= 0) printf("%s GOT TOO BORED AND LEFT THE BUILDING\n", hunter->name);
+	else printf("%s COLLECTED ALL THE EVIDENCE IT NEEDED AND LEFT THE BUILDING\n", hunter->name);
+	
+	usleep(5000000);
 
 	return (0);
+}
+
+int checkForGhostEvidence(EvidenceListType* list){
+	EvidenceNodeType* e = list->head;
+	
+	int diffEvidenceCollected = 0;
+	int foundEMF = 0;
+	int foundTemp = 0;
+	int foundPrints = 0; 
+	int foundSound = 0; 
+	
+	while(e != NULL){
+		if (ghostEvidenceCheck(e->evidence->evidenceType, e->evidence->value) == G_E){
+			switch(e->evidence->evidenceType){
+				case EMF:
+					if (foundEMF == 0){
+						diffEvidenceCollected++;
+						foundEMF = 1;
+					}
+					break;
+					
+				case TEMPERATURE:
+					if (foundTemp == 0){
+						diffEvidenceCollected++;
+						foundTemp = 1;
+					}
+					break;
+					
+				case FINGERPRINTS:
+					if (foundPrints == 0){
+						diffEvidenceCollected++;
+						foundPrints = 1;
+					}
+					break;
+					
+				case SOUND:
+					if (foundSound == 0){
+						diffEvidenceCollected++;
+						foundSound = 1;
+					}
+					break;
+			}
+		}
+		if (diffEvidenceCollected == 3) break;
+		e = e->next;
+	}
+	
+	return diffEvidenceCollected;
+}
+
+void removeStandardEvidence(HunterType* hunter){
+	EvidenceNodeType* currEvi = hunter->evidence->head;
+	EvidenceNodeType* prev = NULL;
+	while(currEvi != NULL){
+		if (ghostEvidenceCheck(currEvi->evidence->evidenceType, currEvi->evidence->value) == N_G_E){
+			free(currEvi->evidence);
+			if (currEvi == hunter->evidence->head && currEvi == hunter->evidence->tail){
+				free(currEvi);
+				hunter->evidence->head = NULL;
+				hunter->evidence->tail = NULL;
+				break;
+			}
+			else if (currEvi == hunter->evidence->head){
+				hunter->evidence->head = currEvi->next;
+				free(currEvi);
+				currEvi = hunter->evidence->head;
+			}
+			else if (currEvi == hunter->evidence->tail){
+				hunter->evidence->tail = prev;
+				free(currEvi);
+				prev->next = NULL;
+				break;
+			}
+			else{
+				prev->next = currEvi->next;
+				free(currEvi);
+				currEvi = prev->next;
+			}
+		}
+		else{
+			prev = currEvi;
+			currEvi = currEvi->next;
+		}
+	}
 }
 
 int collectEvidence(HunterType* hunter){
@@ -147,10 +248,11 @@ int collectEvidence(HunterType* hunter){
 	}
 	
 	EvidenceType* newEvidence = calloc(1, sizeof(EvidenceType));
-	initEvidenceType(newEvidence, hunter->readableEvidence, evidenceValue, 0);
+	initEvidenceType(newEvidence, hunter->readableEvidence, evidenceValue);
 	
 	EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
     	newEvidenceNode->evidence = newEvidence;
+    	newEvidenceNode->next = NULL;
 	
 	addEvidence(hunter->evidence, newEvidenceNode);
 	printf("%s collects standard evidence \n", hunter->name);
@@ -197,38 +299,10 @@ void moveHunter(HunterType* hunter){
 	
 	removeHunterFromRoom(currRoom, hunter);
 	
-	/*
-	//1 hunter in room
-	if(currRoom->hunters.size == 1){
-		//how to access hunters array as a pointer??
-		currRoom->hunters.hunters[0] = NULL;
-		currRoom->hunters.size = 0;
-	}
-	
-	else{
-		int hunterPos;
-		for(int i = 0; i < currRoom->hunters.size; i++){
-			//comparing addresses
-			if(currRoom->hunters.hunters[i] == hunter){
-				hunterPos = i;
-				break;
-			}
-			
-		}
-		
-		//1 less hunter in room now
-		currRoom->hunters.size--;
-		for(int i = hunterPos; i < currRoom->hunters.size; i++){
-			currRoom->hunters.hunters[i] = currRoom->hunters.hunters[i+1];
-		}
-	}
-	*/
-	
 	printf("%s moved to %s \n", hunter->name, hunter->room->name);
 	sem_post(&(currRoomChoice->room->mutex));
 }
 
-//communicate function
 void communicateEvidence(HunterType* hunter){
 	//get random hunter number in size of arraylist
 	int hunterChoice = randInt(0, hunter->room->hunters.size);
@@ -244,10 +318,10 @@ void communicateEvidence(HunterType* hunter){
 	while(currEvidence != NULL){
 		//if its ghost evidence append to other hunter list
 		//decided to duplicate evidence
-		if(currEvidence->evidence->ghostEvidence){
+		if(ghostEvidenceCheck(currEvidence->evidence->evidenceType, currEvidence->evidence->value) == G_E){
 			
 			EvidenceType* newEvidence = calloc(1, sizeof(EvidenceType));
-			initEvidenceType(newEvidence, currEvidence->evidence->evidenceType, currEvidence->evidence->value, 1);
+			initEvidenceType(newEvidence, currEvidence->evidence->evidenceType, currEvidence->evidence->value);
 			
 			EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
 		    	newEvidenceNode->evidence = newEvidence;
@@ -256,7 +330,7 @@ void communicateEvidence(HunterType* hunter){
 		}
 		currEvidence = currEvidence->next;
 	}
-	printf("%s gave his ghost evidence to %s\n", hunter->name, otherHunter->name);
+	printf("%s gave their ghost evidence to %s\n", hunter->name, otherHunter->name);
 }
 
 void initHunter(HunterType* hunter, RoomNodeType* roomNode, EvidenceClassType readableEvidence, char* name){
@@ -301,6 +375,68 @@ void removeHunterFromRoom(RoomType* currRoom, HunterType* hunter){
 			currRoom->hunters.hunters[i] = currRoom->hunters.hunters[i+1];
 		}
 	}
+}
+
+
+void determineGhostType(HunterType* hunter, GhostClassType* ghostClass){
+	EvidenceNodeType* currEvi = hunter->evidence->head;
+	int diffEvidenceCollected = 0;
+	int foundEMF = 0;
+	int foundTemp = 0;
+	int foundPrints = 0;
+	int foundSound = 0;
+	while(currEvi != NULL && diffEvidenceCollected < 3){
+		if (ghostEvidenceCheck(currEvi->evidence->evidenceType, currEvi->evidence->value) == G_E){
+			switch(currEvi->evidence->evidenceType){
+				case EMF:
+					if (!foundEMF){
+						diffEvidenceCollected++;
+						foundEMF = 1;
+					}
+					break;
+					
+				case TEMPERATURE:
+					if (!foundTemp){
+						diffEvidenceCollected++;
+						foundTemp = 1;
+					}
+					break;
+					
+				case FINGERPRINTS:
+					if (!foundPrints){
+						diffEvidenceCollected++;
+						foundPrints = 1;
+					}
+					break;
+					
+				case SOUND:
+					if (!foundSound){
+						diffEvidenceCollected++;
+						foundSound = 1;
+					}
+					break;
+			}
+		}
+		currEvi = currEvi->next;
+	}
+	
+	
+	if (foundEMF && foundTemp && foundPrints){
+		*ghostClass = 0;
+	}
+	
+	else if (foundEMF && foundTemp && foundSound){
+		*ghostClass = 1;
+	}
+	
+	else if (foundEMF &&foundPrints && foundSound){
+		*ghostClass = 2;
+	}
+	
+	else if (foundTemp && foundPrints && foundSound){
+		*ghostClass = 3;
+	}
+	
 }
 
 void initHunterArray(HunterArrayType* hunterList){

@@ -10,9 +10,12 @@
 #define MAX_STR            64
 #define FEAR_RATE           1
 #define MAX_FEAR          100
-#define MAX_HUNTERS         1 // should be 4
+#define MAX_HUNTERS         4 // should be 4
 #define USLEEP_TIME     50000
 #define BOREDOM_MAX        99
+
+#define N_G_E 		    0
+#define G_E                 1
 
 //GIVEN
 // You may rename these types if you wish
@@ -47,7 +50,6 @@ typedef struct{
 typedef struct{
 	EvidenceClassType evidenceType;
 	float value;
-	int ghostEvidence;
 } EvidenceType;
  
 typedef struct EvidenceNode{
@@ -86,8 +88,12 @@ typedef struct{
 	GhostType* ghost;
 	HunterArrayType hunters;
 	RoomListType* rooms;
-	
 } BuildingType;
+
+
+void pData(HunterType*);
+
+
 
 //main functions
 int randInt(int, int);          // Generates a pseudorandom integer between the parameters
@@ -108,24 +114,29 @@ void cleanupRoomList(RoomListType*);
 
 //Evidence functions
 void initEvidenceList(EvidenceListType*);
-void initEvidenceType(EvidenceType*, EvidenceClassType, float, int);
+void initEvidenceType(EvidenceType*, EvidenceClassType, float);
 void addEvidence(EvidenceListType*, EvidenceNodeType*);
 void cleanupEvidenceData(EvidenceListType*);
 void cleanupEvidenceList(EvidenceListType*);
+int ghostEvidenceCheck(EvidenceClassType, float);
 
 //Ghost functions
 void* ghostThreadFunction(void*);
 void leaveEvidence(GhostType*);
 void moveRoom(GhostType*);
 void initGhost(GhostType*, GhostClassType, RoomType*);
+void getGhostName(GhostClassType, char*);
 
 //Hunter functions
 void* hunterThreadFunction(void*);
+int checkForGhostEvidence(EvidenceListType*);
+void removeStandardEvidence(HunterType*);
 int collectEvidence(HunterType*);
 void moveHunter(HunterType*);
 void communicateEvidence(HunterType*);
 void initHunter(HunterType*, RoomNodeType*, EvidenceClassType, char*);
 void removeHunterFromRoom(RoomType*, HunterType*);
+void determineGhostType(HunterType*, GhostClassType*);
 void initHunterArray(HunterArrayType*);
 void addHunter(HunterArrayType*, HunterType*);
 void cleanupHunterArray(HunterArrayType*);

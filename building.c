@@ -1,10 +1,10 @@
 #include "defs.h"
  
-//will have more
 void initBuilding(BuildingType* building){
 	RoomListType* roomList = malloc(sizeof(RoomListType));
 	building->rooms = roomList;
-
+	//init rooms list happens in populate rooms
+	
 	initHunterArray(&building->hunters);
 	building->ghost = NULL;
 }
@@ -62,8 +62,6 @@ void populateRooms(BuildingType* building) {
     RoomType* utility_room = calloc(1, sizeof(RoomType));
     initRoom(utility_room, "Utility Room");
     
-    
-
     // Now create a linked list of rooms using RoomNodeType in the Building
     RoomNodeType* van_node = calloc(1, sizeof(RoomNodeType));
     van_node->room = van;

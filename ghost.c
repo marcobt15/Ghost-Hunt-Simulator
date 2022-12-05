@@ -8,7 +8,7 @@ void* ghostThreadFunction(void* inputGhost){
 		sem_wait(&(currRoom->mutex));
 		
 		//If there is a hunter in the room
-		if (ghost->room->hunters.size != 0){
+		if (ghost->room->hunters.size > 0){
 			
 			//reset the boredom timer
 			ghost->boredomTimer = BOREDOM_MAX;
@@ -46,7 +46,7 @@ void* ghostThreadFunction(void* inputGhost){
 			else printf("The ghost does nothing\n");
 		}
 		sem_post(&(currRoom->mutex));
-		//usleep(USLEEP_TIME);
+		usleep(USLEEP_TIME);
 	}
 	printf("The ghost got bored and left the building\n");
 	
@@ -105,10 +105,11 @@ void leaveEvidence(GhostType* ghost){
 	}
 	
 	EvidenceType* newEvidence = calloc(1, sizeof(EvidenceType));
-	initEvidenceType(newEvidence, evidenceChoice, evidenceValue, 1);
+	initEvidenceType(newEvidence, evidenceChoice, evidenceValue);
 	
 	EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
     	newEvidenceNode->evidence = newEvidence;
+    	newEvidenceNode->next = NULL;
 	
 	addEvidence(ghost->room->evidence, newEvidenceNode);
 	printf("The ghost just dropped some evidence in: %s\n", ghost->room->name);
@@ -152,4 +153,24 @@ void initGhost(GhostType* ghost, GhostClassType ghostClass, RoomType* room){
 	ghost->ghostType = ghostClass;
 	ghost->room = room;
 	ghost->boredomTimer = BOREDOM_MAX;
+}
+
+void getGhostName(GhostClassType ghostType, char ghostName[]){
+	switch (ghostType){
+		case POLTERGEIST:
+			strcpy(ghostName, "POLTERGEIST");
+			return;
+			
+		case BANSHEE:
+			strcpy(ghostName, "BANSHEE");
+			return;
+			
+		case BULLIES:
+			strcpy(ghostName, "BULLIES");
+			return;
+			
+		case PHANTOM:
+			strcpy(ghostName, "PHANTOM");
+			return;
+	}
 }

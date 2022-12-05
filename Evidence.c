@@ -5,10 +5,9 @@ void initEvidenceList(EvidenceListType* evidenceList){
 	evidenceList->tail = NULL;
 }
 
-void initEvidenceType(EvidenceType* evidence, EvidenceClassType evidenceType, float value, int ghostEvidence){
+void initEvidenceType(EvidenceType* evidence, EvidenceClassType evidenceType, float value){
 	evidence->evidenceType = evidenceType;
 	evidence->value = value;
-	evidence->ghostEvidence = ghostEvidence;
 }
 
 
@@ -46,4 +45,22 @@ void cleanupEvidenceList(EvidenceListType* list){
 		free(curr);
 		curr = next;
 	}
+}
+
+int ghostEvidenceCheck(EvidenceClassType e, float value){
+	switch(e){
+		case EMF:
+			if (value <= 4.9) return N_G_E;
+			break;
+		case TEMPERATURE:
+			if (value >= 0) return N_G_E;
+			break;
+		case FINGERPRINTS:
+			if (value == 0) return N_G_E;
+			break;
+		case SOUND:
+			if (value <= 70) return N_G_E;
+			break;
+	}
+	return G_E;
 }
