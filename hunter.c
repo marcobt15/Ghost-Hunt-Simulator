@@ -41,7 +41,6 @@ void* hunterThreadFunction(void* inputHunter){
 			
 			//give evidence to other hunters
 			else if (choice == 3){
-				removeStandardEvidence(hunter);
 				communicateEvidence(hunter);
 				hunter->boredomTimer--;
 			}
@@ -74,7 +73,7 @@ void* hunterThreadFunction(void* inputHunter){
 		if (diffEvidenceCollected == 3) break;
 		
 		usleep(USLEEP_TIME);
-		pData(hunter);
+		//pData(hunter);
 		//usleep(USLEEP_TIME*4);
 		
 	}
@@ -183,45 +182,59 @@ int collectEvidence(HunterType* hunter){
 		
 		while(pointer != NULL){
 			if(pointer->evidence->evidenceType == hunter->readableEvidence){
-				//put evidence from room into hunters evidence linked list
-				//->use tail
-				//can we just set it to pointer?
-				if(hunter->evidence->head == NULL){
-					hunter->evidence->head = pointer; //?
-					hunter->evidence->tail = hunter->evidence->head;
+				int dup = checkDuplicates(hunter->evidence, pointer->evidence->value);
+				if (dup == N_DUPLICATE){
+					//put evidence from room into hunters evidence linked list
+					//->use tail
+					//can we just set it to pointer?
+					if(hunter->evidence->head == NULL){
+						hunter->evidence->head = pointer; //?
+						hunter->evidence->tail = hunter->evidence->head;
+					}
+					else{
+						hunter->evidence->tail->next = pointer; //?
+						hunter->evidence->tail = pointer;
+					}
 				}
-				else{
-					hunter->evidence->tail->next = pointer; //?
-					hunter->evidence->tail = pointer;
-				}
-				
+					
 				//1 element list
 				if (pointer == hunter->room->evidence->head && pointer == hunter->room->evidence->tail){
 					hunter->room->evidence->head = NULL;
 					hunter->room->evidence->tail = NULL;
+	
 				}
 				
 				//>1 element and removing from tail
 				else if (pointer == hunter->room->evidence->tail){
 					hunter->room->evidence->tail = follow;
 					follow->next = NULL;
+	
 				}
 				//>1 element and removing from middle
 				else if (follow != NULL){ 
 					follow->next = pointer->next;
+	
 				}
 				
 				//>1 element and removing from head
 				else if (follow == NULL){ 
 					hunter->room->evidence->head = pointer->next;
+
 				}
-				pointer->next = NULL; //since its added to new evidence list
+				
+				pointer->next = NULL; //If its added to new evidence list
 				
 			}
+			
 			follow = pointer;
 			pointer = pointer->next;
+			
+			
 		}
 		//found ghostly evidence
+		
+		//check if that new evidence is actually ghostly evidence for boredom timer
+		
 		printf("%s collects ghost evidence \n", hunter->name);
 		return 1;
 	}
@@ -319,14 +332,15 @@ void communicateEvidence(HunterType* hunter){
 		//if its ghost evidence append to other hunter list
 		//decided to duplicate evidence
 		if(ghostEvidenceCheck(currEvidence->evidence->evidenceType, currEvidence->evidence->value) == G_E){
-			
-			EvidenceType* newEvidence = calloc(1, sizeof(EvidenceType));
-			initEvidenceType(newEvidence, currEvidence->evidence->evidenceType, currEvidence->evidence->value);
-			
-			EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
-		    	newEvidenceNode->evidence = newEvidence;
-			
-			addEvidence(otherHunter->evidence, newEvidenceNode);
+			if (checkDuplicates(otherHunter->evidence, currEvidence->evidence->value) == N_DUPLICATE){
+				EvidenceType* newEvidence = calloc(1, sizeof(EvidenceType));
+				initEvidenceType(newEvidence, currEvidence->evidence->evidenceType, currEvidence->evidence->value);
+				
+				EvidenceNodeType* newEvidenceNode = calloc(1, sizeof(EvidenceNodeType));
+			    	newEvidenceNode->evidence = newEvidence;
+				
+				addEvidence(otherHunter->evidence, newEvidenceNode);
+			}
 		}
 		currEvidence = currEvidence->next;
 	}
@@ -437,6 +451,31 @@ void determineGhostType(HunterType* hunter, GhostClassType* ghostClass){
 		*ghostClass = 3;
 	}
 	
+}
+
+int checkDuplicates(EvidenceListType* list, float value){
+	EvidenceNodeType* currEvi = list->head;
+	while(currEvi != NULL){
+		switch (currEvi->evidence->evidenceType){
+			case EMF:
+				if (currEvi->evidence->value == value) return DUPLICATE;
+				break;
+				
+			case TEMPERATURE:
+				if (currEvi->evidence->value == value) return DUPLICATE;
+				break;
+				
+			case FINGERPRINTS:
+				if (currEvi->evidence->value == value) return DUPLICATE;
+				break;
+				
+			case SOUND:
+				if (currEvi->evidence->value == value) return DUPLICATE;
+				break;
+		}
+		currEvi = currEvi->next;
+	}
+	return N_DUPLICATE;
 }
 
 void initHunterArray(HunterArrayType* hunterList){

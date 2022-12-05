@@ -16,7 +16,8 @@
 
 #define N_G_E 		    0
 #define G_E                 1
-
+#define DUPLICATE	    0
+#define N_DUPLICATE	    1
 //GIVEN
 // You may rename these types if you wish
 typedef enum { EMF, TEMPERATURE, FINGERPRINTS, SOUND } EvidenceClassType;
@@ -137,6 +138,7 @@ void communicateEvidence(HunterType*);
 void initHunter(HunterType*, RoomNodeType*, EvidenceClassType, char*);
 void removeHunterFromRoom(RoomType*, HunterType*);
 void determineGhostType(HunterType*, GhostClassType*);
+int checkDuplicates(EvidenceListType*, float);
 void initHunterArray(HunterArrayType*);
 void addHunter(HunterArrayType*, HunterType*);
 void cleanupHunterArray(HunterArrayType*);

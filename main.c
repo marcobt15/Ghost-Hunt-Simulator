@@ -92,8 +92,8 @@ int main(int argc, char *argv[])
 	int ghostClassNumber = randInt(0, 4);    //getting ghost type
 
 	//getting random room
-	//int roomNumber = randInt(1, 12); //13 is the amount of rooms given so move 12 times to get to room 13
-	int roomNumber = 1;
+	int roomNumber = randInt(1, 12); //13 is the amount of rooms given so move 12 times to get to room 13
+	//int roomNumber = 1;
 	RoomNodeType* currRoom = building.rooms->head;
 	for (int i = 0; i < roomNumber; i++){
 		currRoom = currRoom->next;
@@ -241,8 +241,12 @@ int main(int argc, char *argv[])
 		GhostClassType suspectedGhostType;
 		for (int i = 0; i < MAX_HUNTERS; i++){
 			if (building.hunters.hunters[i]->fearTimer < MAX_FEAR && building.hunters.hunters[i]->boredomTimer > 0){
-				determineGhostType(building.hunters.hunters[i], &suspectedGhostType);
-				break;
+				int amountOfGhostEvidence = checkForGhostEvidence(building.hunters.hunters[i]->evidence);
+				if (amountOfGhostEvidence == 3){
+					determineGhostType(building.hunters.hunters[i], &suspectedGhostType);
+					break;
+				}
+				
 			}
 		}
 		
@@ -250,7 +254,7 @@ int main(int argc, char *argv[])
 		getGhostName(suspectedGhostType, suspectedGhostName);
 		printf("The ghost type that the hunters suspect is: %s\n", suspectedGhostName);
 		
-		if (strcmp(ghostName, suspectedGhostName) == 0) printf("The huntes have won! They determined what ghost was present\n");
+		if (strcmp(ghostName, suspectedGhostName) == 0) printf("The hunters have won! They determined what ghost was present\n");
 		else printf("The hunter have not guessed the right ghost\n"); //should never get here
 	}
 	
