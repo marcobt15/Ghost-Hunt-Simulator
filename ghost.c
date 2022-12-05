@@ -112,7 +112,16 @@ void leaveEvidence(GhostType* ghost){
     	newEvidenceNode->next = NULL;
 	
 	addEvidence(ghost->room->evidence, newEvidenceNode);
-	printf("The ghost just dropped some evidence in: %s\n", ghost->room->name);
+	
+	
+	if (ghostEvidenceCheck(evidenceChoice, evidenceValue) == N_G_E){
+		printf("The ghost just dropped some STANDARD %s evidence in: %s\n", getEvidenceName(evidenceChoice), ghost->room->name);
+	}
+	
+	else{
+		printf("The ghost just dropped some GHOST %s evidence in: %s\n", getEvidenceName(evidenceChoice), ghost->room->name);
+	}
+	
 }
 
 void moveRoom(GhostType* ghost){

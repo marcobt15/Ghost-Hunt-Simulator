@@ -120,6 +120,7 @@ void addEvidence(EvidenceListType*, EvidenceNodeType*);
 void cleanupEvidenceData(EvidenceListType*);
 void cleanupEvidenceList(EvidenceListType*);
 int ghostEvidenceCheck(EvidenceClassType, float);
+char* getEvidenceName(EvidenceClassType);
 
 //Ghost functions
 void* ghostThreadFunction(void*);

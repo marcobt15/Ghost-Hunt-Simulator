@@ -182,6 +182,41 @@ int collectEvidence(HunterType* hunter){
 		
 		while(pointer != NULL){
 			if(pointer->evidence->evidenceType == hunter->readableEvidence){
+
+				//put evidence from room into hunters evidence linked list
+				//->use tail
+				//can we just set it to pointer?
+				if(hunter->evidence->head == NULL){
+					hunter->evidence->head = pointer; //?
+					hunter->evidence->tail = hunter->evidence->head;
+				}
+				else{
+					hunter->evidence->tail->next = pointer; //?
+					hunter->evidence->tail = pointer;
+				}
+					
+				//1 element list
+				if (pointer == hunter->room->evidence->head && pointer == hunter->room->evidence->tail){
+					hunter->room->evidence->head = NULL;
+					hunter->room->evidence->tail = NULL;
+				}
+				
+				//>1 element and removing from tail
+				else if (pointer == hunter->room->evidence->tail){
+					hunter->room->evidence->tail = follow;
+	
+				}
+				//>1 element and removing from middle
+				else if (follow != NULL){ 
+					follow->next = pointer->next;
+				}
+				
+				//>1 element and removing from head
+				else if (follow == NULL){ 
+					hunter->room->evidence->head = pointer->next;
+				}
+				pointer->next = NULL; //If its added to new evidence list
+			/*
 				int dup = checkDuplicates(hunter->evidence, pointer->evidence->value);
 				if (dup == N_DUPLICATE){
 					//put evidence from room into hunters evidence linked list
@@ -195,12 +230,20 @@ int collectEvidence(HunterType* hunter){
 						hunter->evidence->tail->next = pointer; //?
 						hunter->evidence->tail = pointer;
 					}
+					//pointer->next = NULL; //If its added to new evidence list
 				}
+				
 					
 				//1 element list
 				if (pointer == hunter->room->evidence->head && pointer == hunter->room->evidence->tail){
 					hunter->room->evidence->head = NULL;
 					hunter->room->evidence->tail = NULL;
+					if (dup == DUPLICATE){
+						free(pointer->evidence);
+						free(pointer);
+					}
+					//else pointer->next = NULL; //If its added to new evidence list
+					break;
 	
 				}
 				
@@ -208,30 +251,51 @@ int collectEvidence(HunterType* hunter){
 				else if (pointer == hunter->room->evidence->tail){
 					hunter->room->evidence->tail = follow;
 					follow->next = NULL;
+					if (dup == DUPLICATE) free(pointer);
+					//else pointer->next = NULL; //If its added to new evidence list
+					break;
 	
 				}
 				//>1 element and removing from middle
 				else if (follow != NULL){ 
 					follow->next = pointer->next;
+					if (dup == DUPLICATE){
+						free(pointer);
+						pointer = follow->next;
+					}
+					else{
+						pointer->next = NULL; //If its added to new evidence list
+					}
 	
 				}
 				
 				//>1 element and removing from head
 				else if (follow == NULL){ 
 					hunter->room->evidence->head = pointer->next;
-
+					if (dup == DUPLICATE){
+						follow = NULL;
+						free(pointer);
+						pointer = hunter->room->evidence->head;
+					}
+					else{
+						pointer->next = NULL; //If its added to new evidence list
+					}
+					
 				}
 				
-				pointer->next = NULL; //If its added to new evidence list
+				if (dup == N_DUPLICATE){
+					follow = pointer;
+					pointer = pointer->next;
+				}*/
 				
 			}
+			
 			
 			follow = pointer;
 			pointer = pointer->next;
 			
-			
 		}
-		//found ghostly evidence
+		
 		
 		//check if that new evidence is actually ghostly evidence for boredom timer
 		

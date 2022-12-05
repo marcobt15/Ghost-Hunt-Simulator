@@ -64,3 +64,16 @@ int ghostEvidenceCheck(EvidenceClassType e, float value){
 	}
 	return G_E;
 }
+
+char* getEvidenceName(EvidenceClassType e){
+	switch(e){
+		case EMF:
+			return "EMF";
+		case TEMPERATURE:
+			return "TEMPERATURE";
+		case FINGERPRINTS:
+			return "FINGERPRINT";
+		case SOUND:
+			return "SOUND";
+	}
+}
