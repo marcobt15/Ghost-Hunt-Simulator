@@ -1,5 +1,6 @@
 #include "defs.h"
 
+
 void initRoom(RoomType* room, char* name){
 	strcpy(room->name, name);
 	
@@ -18,14 +19,17 @@ void initRoom(RoomType* room, char* name){
 	sem_init(&room->mutex, 0, 1);
 }
 
+
 void initRoomList(RoomListType* roomList){
 	roomList->head = NULL;
 	roomList->tail = NULL;
 	roomList->totalRooms = 0;
 }
 
+
 void appendRoom(RoomListType* list, RoomNodeType* room){
 	list->totalRooms++;
+	room->next = NULL;
 	//If an empty list, the room will be the head and tail
 	if (list->head == NULL){
 		list->head = room;
@@ -38,6 +42,7 @@ void appendRoom(RoomListType* list, RoomNodeType* room){
 	list->tail = room;
 }
 
+
 void connectRooms(RoomType* room1, RoomType* room2){
 	RoomNodeType* room1Node = calloc(1, sizeof(RoomNodeType));
     	room1Node->room = room1;
@@ -49,6 +54,7 @@ void connectRooms(RoomType* room1, RoomType* room2){
     	room2Node->next = NULL;
 	appendRoom(room1->rooms, room2Node);
 }
+
 
 void cleanupRoomData(RoomListType* list){
 	RoomNodeType* curr = list->head;
@@ -77,3 +83,4 @@ void cleanupRoomList(RoomListType* list){
 		curr = next;
 	}
 }
+

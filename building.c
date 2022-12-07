@@ -1,5 +1,6 @@
 #include "defs.h"
- 
+
+
 void initBuilding(BuildingType* building){
 	RoomListType* roomList = malloc(sizeof(RoomListType));
 	building->rooms = roomList;
@@ -9,10 +10,11 @@ void initBuilding(BuildingType* building){
 	building->ghost = NULL;
 }
 
+
 void cleanupBuilding(BuildingType* building){
+	cleanupHunterArray(&building->hunters);
 	cleanupRoomData(building->rooms);
 	cleanupRoomList(building->rooms);
-	cleanupHunterArray(&building->hunters);
 	free(building->rooms);
 }
 

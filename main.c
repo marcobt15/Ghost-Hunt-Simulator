@@ -54,11 +54,13 @@ void printstate(BuildingType b){
 
 void printEvidence(HunterType* hunter){
 	EvidenceNodeType* e = hunter->evidence->head;
+	if (e == NULL) printf("THERE IS NO EVIDENCE");
 	printf("Here is %s evidence:\n", hunter->name);
 	while(e != NULL){
 		printf("\t%d    %f\n", e->evidence->evidenceType, e->evidence->value);
 		e = e->next;
 	}
+	printf("this is the end of the evidence \n");
 }
 
 int main(int argc, char *argv[])
@@ -69,7 +71,23 @@ int main(int argc, char *argv[])
 	BuildingType building;
 	initBuilding(&building);
 	populateRooms(&building);
+	
+	//Initializing the ghost
+	GhostType ghost;
+	GhostClassType ghostClass = randInt(0, 4);    //getting ghost type
 
+	//getting random room
+	int roomNumber = randInt(1, 12); //13 is the amount of rooms given so move 12 times to get to room 13
+	RoomNodeType* currRoom = building.rooms->head;
+	for (int i = 0; i < roomNumber; i++){
+		currRoom = currRoom->next;
+	}
+
+	initGhost(&ghost, ghostClass, currRoom->room);
+	
+	building.ghost = &ghost; //building has the ghost
+	
+	printf("Ghost is in %s\n", ghost.room->name);
 	//Initializing all the hunters
 	char name[MAX_STR];
 	for (int i = 0; i < MAX_HUNTERS; i++){
@@ -87,22 +105,65 @@ int main(int argc, char *argv[])
 		addHunter(&building.hunters, newHunter);
 	}
 
-	//Initializing the ghost
-	GhostType ghost;
-	int ghostClassNumber = randInt(0, 4);    //getting ghost type
+	pthread_t ghostThread, hunterThread1, hunterThread2, hunterThread3, hunterThread4;
 
-	//getting random room
-	int roomNumber = randInt(1, 12); //13 is the amount of rooms given so move 12 times to get to room 13
-	//int roomNumber = 1;
-	RoomNodeType* currRoom = building.rooms->head;
-	for (int i = 0; i < roomNumber; i++){
-		currRoom = currRoom->next;
+	pthread_create(&ghostThread, NULL, ghostThreadFunction, building.ghost);
+	pthread_create(&hunterThread1, NULL, hunterThreadFunction, building.hunters.hunters[0]);
+	pthread_create(&hunterThread2, NULL, hunterThreadFunction, building.hunters.hunters[1]);
+	pthread_create(&hunterThread3, NULL, hunterThreadFunction, building.hunters.hunters[2]);
+	pthread_create(&hunterThread4, NULL, hunterThreadFunction, building.hunters.hunters[3]);
+
+	//joining threads
+	pthread_join(ghostThread, NULL);
+	pthread_join(hunterThread1, NULL);
+	pthread_join(hunterThread2, NULL);
+	pthread_join(hunterThread3, NULL);
+	pthread_join(hunterThread4, NULL);
+	
+	
+	printf("Here are all the Hunter who got too scared:\n");
+	int scaredHunters = 0;
+	for (int i = 0; i < MAX_HUNTERS; i++){
+	if (building.hunters.hunters[i]->fearTimer >= 100){
+		printf("\t%s\n", building.hunters.hunters[i]->name);
+		scaredHunters++;
+		}
 	}
 
-	initGhost(&ghost, ghostClassNumber, currRoom->room);
-	currRoom->room->ghost = &ghost; //room has the ghost
-	building.ghost = &ghost; //building has the ghost
+	if (scaredHunters == 0) printf("No hunters were scared off by the ghost!\n");
+
+	char ghostName[MAX_STR];
+	getGhostName(building.ghost->ghostType, ghostName);
 	
+	if (scaredHunters == MAX_HUNTERS){
+		printf("The %s has won! All the huntes got scared and left", ghostName);
+	}
+
+	else{
+		printf("The real ghost type is: %s\n", ghostName);
+		
+		GhostClassType suspectedGhostType;
+		for (int i = 0; i < MAX_HUNTERS; i++){
+			if (building.hunters.hunters[i]->fearTimer < MAX_FEAR && building.hunters.hunters[i]->boredomTimer > 0){
+				int amountOfGhostEvidence = checkForGhostEvidence(building.hunters.hunters[i]->evidence);
+				if (amountOfGhostEvidence == 3){
+					determineGhostType(building.hunters.hunters[i], &suspectedGhostType);
+					break;
+				}
+				
+			}
+		}
+		
+		char suspectedGhostName[MAX_STR];
+		getGhostName(suspectedGhostType, suspectedGhostName);
+		printf("The ghost type that the hunters suspect is: %s\n", suspectedGhostName);
+		
+		if (strcmp(ghostName, suspectedGhostName) == 0) printf("The hunters have won! They determined what ghost was present\n");
+		else printf("The hunter have not guessed the right ghost\n"); //should never get here
+		cleanupBuilding(&building);
+		
+		
+	}
 	/*
 	for (int i = 0; i < 10; i++){
 		leaveEvidence(&ghost);
@@ -184,82 +245,6 @@ int main(int argc, char *argv[])
 	else printf("The hunter have not guessed the right ghost\n"); //should never get here
 	
 	*/
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-
-	
-	pthread_t ghostThread, hunterThread1, hunterThread2, hunterThread3, hunterThread4;
-
-	pthread_create(&ghostThread, NULL, ghostThreadFunction, building.ghost);
-	pthread_create(&hunterThread1, NULL, hunterThreadFunction, building.hunters.hunters[0]);
-	pthread_create(&hunterThread2, NULL, hunterThreadFunction, building.hunters.hunters[1]);
-	pthread_create(&hunterThread3, NULL, hunterThreadFunction, building.hunters.hunters[2]);
-	pthread_create(&hunterThread4, NULL, hunterThreadFunction, building.hunters.hunters[3]);
-
-	//joining threads
-	pthread_join(ghostThread, NULL);
-	pthread_join(hunterThread1, NULL);
-	pthread_join(hunterThread2, NULL);
-	pthread_join(hunterThread3, NULL);
-	pthread_join(hunterThread4, NULL);	
-
-
-	printf("Here are all the Hunter who got too scared:\n");
-	int scaredHunters = 0;
-	for (int i = 0; i < MAX_HUNTERS; i++){
-	if (building.hunters.hunters[i]->fearTimer >= 100){
-		printf("\t%s\n", building.hunters.hunters[i]->name);
-		scaredHunters++;
-		}
-	}
-
-	if (scaredHunters == 0) printf("No hunters were scared off by the ghost!\n");
-
-	char ghostName[MAX_STR];
-	getGhostName(building.ghost->ghostType, ghostName);
-	
-	if (scaredHunters == MAX_HUNTERS){
-		printf("The %s has won! All the huntes got scared and left", ghostName);
-	}
-
-	else{
-		printf("The real ghost type is: %s\n", ghostName);
-		
-		GhostClassType suspectedGhostType;
-		for (int i = 0; i < MAX_HUNTERS; i++){
-			if (building.hunters.hunters[i]->fearTimer < MAX_FEAR && building.hunters.hunters[i]->boredomTimer > 0){
-				int amountOfGhostEvidence = checkForGhostEvidence(building.hunters.hunters[i]->evidence);
-				if (amountOfGhostEvidence == 3){
-					determineGhostType(building.hunters.hunters[i], &suspectedGhostType);
-					break;
-				}
-				
-			}
-		}
-		
-		char suspectedGhostName[MAX_STR];
-		getGhostName(suspectedGhostType, suspectedGhostName);
-		printf("The ghost type that the hunters suspect is: %s\n", suspectedGhostName);
-		
-		if (strcmp(ghostName, suspectedGhostName) == 0) printf("The hunters have won! They determined what ghost was present\n");
-		else printf("The hunter have not guessed the right ghost\n"); //should never get here
-	}
-	
-
-	cleanupBuilding(&building);
 	return 0;
 }
 

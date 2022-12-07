@@ -1,5 +1,6 @@
 #include "defs.h"
 
+
 void initEvidenceList(EvidenceListType* evidenceList){
 	evidenceList->head = NULL;
 	evidenceList->tail = NULL;
@@ -19,32 +20,11 @@ void addEvidence(EvidenceListType* list, EvidenceNodeType* evidence){
 		return;
 	}
 	
+	if (list->head != NULL && list->tail == NULL) printf("ISSUE"); 
+	
 	//Not an empty list
 	list->tail->next = evidence;
 	list->tail = evidence;
-}
-
-void cleanupEvidenceData(EvidenceListType* list){
-	EvidenceNodeType* curr = list->head;
-	if (curr == NULL) return;
-	
-	while(1){
-		free(curr->evidence);
-		if (curr->next == NULL) break;
-		curr = curr->next;
-	}
-}
-
-void cleanupEvidenceList(EvidenceListType* list){
-	EvidenceNodeType* curr = list->head;
-	EvidenceNodeType* next = NULL;
-	
-	while(1){
-		if (curr == NULL) break;
-		next = curr->next;
-		free(curr);
-		curr = next;
-	}
 }
 
 int ghostEvidenceCheck(EvidenceClassType e, float value){
@@ -75,5 +55,28 @@ char* getEvidenceName(EvidenceClassType e){
 			return "FINGERPRINT";
 		case SOUND:
 			return "SOUND";
+	}
+}
+
+void cleanupEvidenceData(EvidenceListType* list){
+	EvidenceNodeType* curr = list->head;
+	if (curr == NULL) return;
+	
+	while(1){
+		free(curr->evidence);
+		if (curr->next == NULL) break;
+		curr = curr->next;
+	}
+}
+
+void cleanupEvidenceList(EvidenceListType* list){
+	EvidenceNodeType* curr = list->head;
+	EvidenceNodeType* next = NULL;
+	
+	while(1){
+		if (curr == NULL) break;
+		next = curr->next;
+		free(curr);
+		curr = next;
 	}
 }

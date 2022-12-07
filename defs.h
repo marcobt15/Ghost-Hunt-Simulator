@@ -18,6 +18,7 @@
 #define G_E                 1
 #define DUPLICATE	    0
 #define N_DUPLICATE	    1
+
 //GIVEN
 // You may rename these types if you wish
 typedef enum { EMF, TEMPERATURE, FINGERPRINTS, SOUND } EvidenceClassType;
@@ -91,10 +92,7 @@ typedef struct{
 	RoomListType* rooms;
 } BuildingType;
 
-
-void pData(HunterType*);
-
-
+void printEvidence(HunterType*);
 
 //main functions
 int randInt(int, int);          // Generates a pseudorandom integer between the parameters
@@ -133,7 +131,7 @@ void getGhostName(GhostClassType, char*);
 void* hunterThreadFunction(void*);
 int checkForGhostEvidence(EvidenceListType*);
 void removeStandardEvidence(HunterType*);
-int collectEvidence(HunterType*);
+void collectEvidence(HunterType*);
 void moveHunter(HunterType*);
 void communicateEvidence(HunterType*);
 void initHunter(HunterType*, RoomNodeType*, EvidenceClassType, char*);

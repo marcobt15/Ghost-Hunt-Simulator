@@ -1,6 +1,6 @@
 # finalProject
-Name: Marco Toito
-Student ID: 101233884
+Name: Marco Toito, Kensley Schonauer
+Student ID: 101233884, 101183280
 
 Description of Program:
 
@@ -20,4 +20,4 @@ Compilation Command:
 	
 Lauching intruction:
 	./fp
-	No command line arguments required 
+	No command line arguments required
