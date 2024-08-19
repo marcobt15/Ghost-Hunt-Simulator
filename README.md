@@ -18,6 +18,6 @@ This program is a simulation where a ghost travels around a leaving evidence of 
 ### Compilation Command:
 `make fp`
 	
-#### Lauching intruction:
+### Lauching intruction:
 `./fp` \
 No command line arguments required
